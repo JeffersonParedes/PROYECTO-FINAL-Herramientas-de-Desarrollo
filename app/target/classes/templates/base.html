@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+ 
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle} + ' | ForoHub'">ForoHub</title>
+ 
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+ 
+    <style>
+        /* ── Variables de diseño ── */
+        :root {
+            --fh-bg:           #0f1117;
+            --fh-surface:      #1a1d27;
+            --fh-surface-2:    #22263a;
+            --fh-border:       #2e3248;
+            --fh-accent:       #6c63ff;
+            --fh-accent-light: #8b84ff;
+            --fh-amber:        #f59e0b;
+            --fh-danger:       #ef4444;
+            --fh-text:         #e2e5f0;
+            --fh-muted:        #8b8fa8;
+            --fh-navbar-h:     62px;
+            --fh-sidebar-w:    260px;
+        }
+ 
+        /* ── Base global ── */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body {
+            background: var(--fh-bg);
+            color: var(--fh-text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+        }
+        a { color: var(--fh-accent-light); text-decoration: none; }
+        a:hover { color: #fff; text-decoration: underline; }
+ 
+        /* ── Navbar ── */
+        .fh-navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--fh-navbar-h);
+            background: var(--fh-surface);
+            border-bottom: 1px solid var(--fh-border);
+            display: flex;
+            align-items: center;
+            padding: 0 1.25rem;
+            gap: 1rem;
+            z-index: 1040;
+        }
+        .fh-logo {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #fff;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+        }
+        .fh-logo span { color: var(--fh-accent); }
+        .fh-logo-icon {
+            width: 32px; height: 32px;
+            background: var(--fh-accent);
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        .fh-searchbar {
+            flex: 1;
+            max-width: 480px;
+        }
+        .fh-searchbar .input-group {
+            border: 1px solid var(--fh-border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--fh-surface-2);
+        }
+        .fh-searchbar .form-control {
+            background: transparent;
+            border: none;
+            color: var(--fh-text);
+            font-size: .875rem;
+        }
+        .fh-searchbar .form-control:focus { box-shadow: none; }
+        .fh-searchbar .form-control::placeholder { color: var(--fh-muted); }
+        .fh-searchbar .btn-search {
+            background: transparent;
+            border: none;
+            color: var(--fh-muted);
+            padding: 0 .75rem;
+        }
+        .fh-nav-actions { margin-left: auto; display: flex; align-items: center; gap: .6rem; }
+        .btn-login {
+            background: transparent;
+            border: 1px solid var(--fh-border);
+            color: var(--fh-text);
+            border-radius: 8px;
+            padding: .35rem .9rem;
+            font-size: .85rem;
+            transition: border-color .2s, color .2s;
+        }
+        .btn-login:hover { border-color: var(--fh-accent); color: var(--fh-accent-light); }
+        .btn-register {
+            background: var(--fh-accent);
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            padding: .35rem .9rem;
+            font-size: .85rem;
+            font-weight: 600;
+            transition: background .2s;
+        }
+        .btn-register:hover { background: var(--fh-accent-light); }
+        /* Dropdown usuario logueado */
+        .fh-user-btn {
+            background: var(--fh-surface-2);
+            border: 1px solid var(--fh-border);
+            border-radius: 8px;
+            padding: .3rem .75rem;
+            color: var(--fh-text);
+            display: flex; align-items: center; gap: .5rem;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+        .fh-user-btn:hover { border-color: var(--fh-accent); }
+        .fh-avatar {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--fh-accent);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: .75rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .dropdown-menu-dark-custom {
+            background: var(--fh-surface-2);
+            border: 1px solid var(--fh-border);
+            border-radius: 10px;
+            padding: .4rem;
+            min-width: 160px;
+        }
+        .dropdown-menu-dark-custom .dropdown-item {
+            color: var(--fh-text);
+            border-radius: 6px;
+            padding: .45rem .75rem;
+            font-size: .875rem;
+        }
+        .dropdown-menu-dark-custom .dropdown-item:hover {
+            background: var(--fh-accent);
+            color: #fff;
+        }
+        .dropdown-menu-dark-custom .dropdown-divider { border-color: var(--fh-border); }
+ 
+        /* ── Layout principal (sidebar + content) ── */
+        .fh-layout {
+            display: flex;
+            min-height: 100vh;
+            padding-top: var(--fh-navbar-h);
+        }
+ 
+        /* ── Sidebar ── */
+        .fh-sidebar {
+            width: var(--fh-sidebar-w);
+            flex-shrink: 0;
+            background: var(--fh-surface);
+            border-right: 1px solid var(--fh-border);
+            position: sticky;
+            top: var(--fh-navbar-h);
+            height: calc(100vh - var(--fh-navbar-h));
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+        .fh-sidebar::-webkit-scrollbar { width: 4px; }
+        .fh-sidebar::-webkit-scrollbar-thumb { background: var(--fh-border); border-radius: 2px; }
+        .sidebar-section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: .7rem;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--fh-muted);
+            padding: .5rem 1.1rem;
+            margin-top: .5rem;
+        }
+        /* Acordeón personalizado */
+        .fh-accordion .accordion-item {
+            background: transparent;
+            border: none;
+        }
+        .fh-accordion .accordion-button {
+            background: transparent;
+            color: var(--fh-text);
+            font-size: .875rem;
+            padding: .55rem 1.1rem;
+            border-radius: 8px !important;
+            gap: .6rem;
+            box-shadow: none !important;
+            transition: background .15s;
+        }
+        .fh-accordion .accordion-button:not(.collapsed) {
+            background: rgba(108,99,255,.15);
+            color: var(--fh-accent-light);
+        }
+        .fh-accordion .accordion-button::after {
+            filter: invert(60%) sepia(20%) saturate(400%) hue-rotate(200deg);
+        }
+        .fh-accordion .accordion-button:hover { background: var(--fh-surface-2); }
+        .fh-accordion .accordion-body { padding: 0 0 .3rem 1.5rem; }
+        .fh-sub-link {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .4rem .75rem;
+            border-radius: 6px;
+            color: var(--fh-muted);
+            font-size: .84rem;
+            transition: background .15s, color .15s;
+        }
+        .fh-sub-link:hover { background: var(--fh-surface-2); color: var(--fh-text); text-decoration: none; }
+        .fh-sub-link.active { color: var(--fh-accent-light); background: rgba(108,99,255,.12); }
+        .fh-sub-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--fh-accent);
+            flex-shrink: 0;
+        }
+ 
+        /* ── Contenido principal ── */
+        .fh-main {
+            flex: 1;
+            min-width: 0;
+            padding: 1.75rem 1.5rem;
+        }
+ 
+        /* ── Responsive: sidebar colapsable en móvil ── */
+        @media (max-width: 768px) {
+            .fh-sidebar { display: none; }
+            .fh-main { padding: 1rem; }
+        }
+    </style>
+</head>
+ 
+<!-- ═══════════════════════════════════════════════════════
+     FRAGMENTO: NAVBAR
+     Uso: th:replace="~{base :: navbar}"
+     ═══════════════════════════════════════════════════════ -->
+<nav class="fh-navbar" th:fragment="navbar">
+ 
+    <!-- Logo -->
+    <a href="/" class="fh-logo text-decoration-none">
+        <span class="fh-logo-icon"><i class="bi bi-chat-dots-fill"></i></span>
+        Foro<span>Hub</span>
+    </a>
+ 
+    <!-- Barra de búsqueda -->
+    <div class="fh-searchbar d-none d-sm-block">
+        <div class="input-group">
+            <button class="btn-search"><i class="bi bi-search"></i></button>
+            <input type="search" class="form-control" placeholder="Buscar publicaciones, subforos..."/>
+        </div>
+    </div>
+ 
+    <!-- Acciones de navegación -->
+    <div class="fh-nav-actions">
+ 
+        <!-- ── VISITANTE (no autenticado) ── -->
+        <div sec:authorize="isAnonymous()">
+            <a href="/login" class="btn btn-login me-1">Iniciar Sesión</a>
+            <a href="/registro" class="btn btn-register">Registrarse</a>
+        </div>
+ 
+        <!-- ── USUARIO LOGUEADO ── -->
+        <div sec:authorize="isAuthenticated()" class="dropdown">
+            <button class="fh-user-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <!-- Inicial del nickname como avatar -->
+                <span class="fh-avatar" th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">U</span>
+                <span class="d-none d-md-inline" th:text="${#authentication.name}">Nickname</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark-custom">
+                <li>
+                    <a class="dropdown-item" th:href="@{/perfil/{nick}(nick=${#authentication.name})}">
+                        <i class="bi bi-person me-2"></i>Mi Perfil
+                    </a>
+                </li>
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a class="dropdown-item" href="/admin">
+                        <i class="bi bi-shield-check me-2"></i>Administración
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"/></li>
+                <li>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+ 
+    </div>
+</nav>
+ 
+<!-- ═══════════════════════════════════════════════════════
+     FRAGMENTO: SIDEBAR  (Menú Acordeón de Subforos)
+     Uso: th:replace="~{base :: sidebar}"
+     ═══════════════════════════════════════════════════════ -->
+<aside class="fh-sidebar" th:fragment="sidebar">
+ 
+    <p class="sidebar-section-title">Navegación</p>
+ 
+    <!-- Accesos rápidos fijos -->
+    <div class="px-2 mb-1">
+        <a th:href="@{/}" class="fh-sub-link" th:classappend="${currentPage == 'home'} ? 'active'">
+            <i class="bi bi-house-door"></i> Inicio
+        </a>
+        <a href="#" class="fh-sub-link">
+            <i class="bi bi-fire"></i> Tendencias
+        </a>
+        <a href="#" class="fh-sub-link" sec:authorize="isAuthenticated()">
+            <i class="bi bi-bookmark"></i> Guardados
+        </a>
+    </div>
+ 
+    <p class="sidebar-section-title mt-2">Subforos</p>
+ 
+    <!-- Acordeón generado por Thymeleaf desde la lista de subforos raíz -->
+    <div class="accordion fh-accordion px-2" id="sidebarAccordion">
+ 
+        <!--
+            th:each="subforo : ${subforos}"  ← lista inyectada desde el controlador
+            Cada subforo tiene: id, nombre, icono, subSubforos (lista hija)
+        -->
+        <div class="accordion-item" th:each="subforo, i : ${subforos}">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        th:data-bs-target="'#acc-' + ${subforo.id}"
+                        th:aria-controls="'acc-' + ${subforo.id}">
+                    <i class="bi me-2" th:classappend="${subforo.icono}"></i>
+                    <span th:text="${subforo.nombre}">Subforo</span>
+                </button>
+            </h2>
+            <div th:id="'acc-' + ${subforo.id}"
+                 class="accordion-collapse collapse"
+                 data-bs-parent="#sidebarAccordion">
+                <div class="accordion-body">
+                    <!--  Sub-subforos hijos (parentId = subforo.id) -->
+                    <a th:each="sub : ${subforo.subSubforos}"
+                       th:href="@{/subforo/{id}(id=${sub.id})}"
+                       th:text="${sub.nombre}"
+                       th:classappend="${currentSubforoId == sub.id} ? ' active'"
+                       class="fh-sub-link">
+                        <span class="fh-sub-dot"></span>
+                        Sub-subforo
+                    </a>
+                </div>
+            </div>
+        </div>
+ 
+        <!-- Estado vacío (sin subforos) -->
+        <p th:if="${#lists.isEmpty(subforos)}"
+           class="fh-sub-link text-muted small px-2">
+            Sin categorías disponibles.
+        </p>
+ 
+    </div><!-- /accordion -->
+</aside>
+ 
+<!-- ═══════════════════════════════════════════════════════
+     FRAGMENTO: LAYOUT COMPLETO
+     Envuelve navbar + sidebar + bloque de contenido.
+     Uso en páginas hijas:
+       <div th:replace="~{base :: layout(~{::main-content})}">
+     ═══════════════════════════════════════════════════════ -->
+<html th:fragment="layout(content)" lang="es">
+<head th:replace="~{base :: head(${pageTitle})}"></head>
+<body>
+ 
+    <!-- Navbar -->
+    <div th:replace="~{base :: navbar}"></div>
+ 
+    <!-- Layout de dos columnas -->
+    <div class="fh-layout">
+        <!-- Sidebar -->
+        <div th:replace="~{base :: sidebar}"></div>
+ 
+        <!-- Área de contenido principal: cada vista inyecta aquí su propio HTML -->
+        <main class="fh-main">
+            <th:block th:replace="${content}"></th:block>
+        </main>
+    </div>
+ 
+    <!-- Bootstrap 5 JS (Bundle con Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+ 
+</html>
