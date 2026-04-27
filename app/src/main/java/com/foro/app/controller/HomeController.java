@@ -10,10 +10,16 @@ public class HomeController {
 
     @GetMapping({"/", "/index"})
     public String home(Model model) {
-        // Por ahora lista vacía, luego conectas la base de datos
         model.addAttribute("publicaciones", List.of());
         model.addAttribute("subforos", List.of());
-        return "index";   // ← busca templates/index.html automáticamente
+        return "index";
+    }
+
+    @GetMapping("/subforo")
+    public String subforo(Model model) {
+        model.addAttribute("usuarioLogueado", false);
+        model.addAttribute("subforoAdulto", true);
+        return "subforo";
     }
 
     @GetMapping("/subforo")
