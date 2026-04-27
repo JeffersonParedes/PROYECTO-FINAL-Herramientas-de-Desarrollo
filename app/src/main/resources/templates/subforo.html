@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<!--
+    subforo.html  ─  Vista de Subforo / Categoría
+    Equipo 1 (David & Angie)
+    Extiende: base.html
+-->
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{base :: layout(~{::main-content})}">
+ 
+<head>
+    <title th:text="${subforo.nombre}">Subforo</title>
+ 
+    <style>
+        /* ── Cabecera del subforo ── */
+        .fh-subforo-header {
+            background: var(--fh-surface);
+            border: 1px solid var(--fh-border);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .fh-subforo-icon {
+            width: 52px; height: 52px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--fh-accent), #9c88ff);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .fh-subforo-info { flex: 1; min-width: 0; }
+        .fh-subforo-name {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0 0 .25rem;
+        }
+        .fh-subforo-desc { color: var(--fh-muted); font-size: .9rem; margin: 0; }
+        .fh-subforo-stats {
+            display: flex; gap: 1rem; margin-top: .75rem; flex-wrap: wrap;
+        }
+        .fh-stat {
+            display: flex; align-items: center; gap: .3rem;
+            font-size: .8rem; color: var(--fh-muted);
+        }
+        .fh-stat strong { color: var(--fh-text); font-size: .9rem; }
+ 
+        /* Badge +16 en la cabecera */
+        .fh-header-adult {
+            display: inline-flex; align-items: center; gap: .35rem;
+            background: rgba(239,68,68,.15);
+            color: #f87171;
+            border: 1px solid rgba(239,68,68,.3);
+            border-radius: 8px;
+            padding: .3rem .7rem;
+            font-size: .8rem;
+            font-weight: 600;
+        }
+ 
+        /* ── Barra de acciones / filtros ── */
+        .fh-action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            margin-bottom: 1.1rem;
+            flex-wrap: wrap;
+        }
+        .fh-sort-tabs {
+            display: flex; gap: .35rem;
+        }
+        .fh-sort-btn {
+            background: var(--fh-surface-2);
+            border: 1px solid var(--fh-border);
+            border-radius: 8px;
+            padding: .35rem .8rem;
+            font-size: .82rem;
+            color: var(--fh-muted);
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .fh-sort-btn.active, .fh-sort-btn:hover {
+            border-color: var(--fh-accent);
+            color: var(--fh-accent-light);
+            background: rgba(108,99,255,.12);
+        }
+ 
+        /* Botón "Crear Publicación" (solo logueados) */
+        .btn-crear {
+            background: var(--fh-accent);
+            border: none;
+            border-radius: 8px;
+            padding: .4rem 1rem;
+            color: #fff;
+            font-weight: 600;
+            font-size: .875rem;
+            display: inline-flex; align-items: center; gap: .4rem;
+            transition: background .2s;
+        }
+        .btn-crear:hover { background: var(--fh-accent-light); color: #fff; text-decoration: none; }
+ 
+        /* ── Tarjeta de publicación (igual que index pero sin score-col para simplificar) ── */
+        .fh-card {
+            background: var(--fh-surface);
+            border: 1px solid var(--fh-border);
+            border-radius: 12px;
+            padding: 1.1rem 1.25rem;
+            margin-bottom: .85rem;
+            display: flex;
+            gap: 1rem;
+            transition: border-color .2s, transform .15s;
+        }
+        .fh-card:hover { border-color: var(--fh-accent); transform: translateY(-1px); }
+        .fh-score-col {
+            display: flex; flex-direction: column; align-items: center;
+            min-width: 46px; padding-top: .1rem; gap: .2rem;
+        }
+        .fh-score-val {
+            font-family: 'Sora', sans-serif; font-size: 1.1rem; font-weight: 700; line-height: 1;
+        }
+        .fh-score-val.positive { color: #4ade80; }
+        .fh-score-val.negative { color: var(--fh-danger); }
+        .fh-score-val.neutral  { color: var(--fh-muted); }
+        .fh-score-label { font-size: .64rem; color: var(--fh-muted); }
+        .fh-card-body { flex: 1; min-width: 0; }
+        .fh-card-meta { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .3rem; align-items: center; }
+        .fh-badge-adult {
+            background: rgba(239,68,68,.2); color: #f87171;
+            border-radius: 6px; padding: .15rem .5rem;
+            font-size: .7rem; font-weight: 700;
+        }
+        .fh-card-title {
+            font-family: 'Sora', sans-serif; font-size: .98rem; font-weight: 600;
+            color: var(--fh-text); margin-bottom: .3rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .fh-card-title a { color: inherit; }
+        .fh-card-title a:hover { color: var(--fh-accent-light); text-decoration: none; }
+        .fh-card-excerpt {
+            color: var(--fh-muted); font-size: .85rem; margin-bottom: .55rem;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .fh-card-footer {
+            display: flex; flex-wrap: wrap; gap: .55rem;
+            align-items: center; font-size: .79rem; color: var(--fh-muted);
+        }
+        .fh-card-footer a { color: var(--fh-muted); }
+        .fh-card-footer a:hover { color: var(--fh-text); }
+        .fh-meta-pill { display: flex; align-items: center; gap: .28rem; }
+ 
+        /* ── Bloque de contenido restringido (+16 para visitantes) ── */
+        .fh-restricted {
+            background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(239,68,68,.03));
+            border: 1px solid rgba(239,68,68,.3);
+            border-radius: 14px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .fh-restricted-icon {
+            font-size: 3rem;
+            color: #f87171;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .fh-restricted-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #f87171;
+            margin-bottom: .5rem;
+        }
+        .fh-restricted-text { color: var(--fh-muted); font-size: .9rem; margin-bottom: 1.25rem; }
+        .btn-login-cta {
+            background: var(--fh-accent);
+            border: none; border-radius: 8px;
+            padding: .5rem 1.25rem;
+            color: #fff; font-weight: 600; font-size: .9rem;
+            display: inline-flex; align-items: center; gap: .4rem;
+            transition: background .2s;
+        }
+        .btn-login-cta:hover { background: var(--fh-accent-light); color: #fff; text-decoration: none; }
+ 
+        /* Estado vacío */
+        .fh-empty {
+            text-align: center; padding: 3rem 1rem; color: var(--fh-muted);
+        }
+        .fh-empty i { font-size: 2.5rem; margin-bottom: .75rem; display: block; }
+    </style>
+</head>
+ 
+<body>
+<main th:fragment="main-content">
+ 
+    <!-- ══════════════════════════════════════════════
+         CABECERA DEL SUBFORO
+         ══════════════════════════════════════════════ -->
+    <div class="fh-subforo-header">
+ 
+        <div class="d-flex align-items-flex-start gap-3 flex-wrap">
+            <!-- Ícono del subforo -->
+            <div class="fh-subforo-icon">
+                <i class="bi" th:classappend="${subforo.icono ?: 'bi-folder'}"></i>
+            </div>
+ 
+            <!-- Información del subforo -->
+            <div class="fh-subforo-info">
+                <h1 class="fh-subforo-name" th:text="${subforo.nombre}">Nombre del Subforo</h1>
+                <p class="fh-subforo-desc" th:text="${subforo.descripcion}">
+                    Descripción del subforo y su temática.
+                </p>
+                <div class="fh-subforo-stats">
+                    <span class="fh-stat">
+                        <i class="bi bi-file-text"></i>
+                        <strong th:text="${totalPublicaciones}">0</strong>&nbsp;publicaciones
+                    </span>
+                    <span class="fh-stat">
+                        <i class="bi bi-people"></i>
+                        <strong th:text="${totalParticipantes}">0</strong>&nbsp;participantes
+                    </span>
+                    <!-- Badge +16 visible si el subforo tiene restricción de edad -->
+                    <span th:if="${subforo.esAdulto}" class="fh-header-adult">
+                        <i class="bi bi-exclamation-triangle-fill"></i>+16 Contenido para adultos
+                    </span>
+                </div>
+            </div>
+        </div>
+ 
+    </div><!-- /fh-subforo-header -->
+ 
+ 
+    <!-- ══════════════════════════════════════════════
+         MURO RESTRINGIDO
+         Condición: subforo es +16 Y el usuario NO está autenticado.
+         th:if evalúa la expresión de Spring Security.
+         ══════════════════════════════════════════════ -->
+    <div th:if="${subforo.esAdulto}" sec:authorize="isAnonymous()" class="fh-restricted">
+        <i class="bi bi-shield-lock fh-restricted-icon"></i>
+        <p class="fh-restricted-title">Contenido restringido</p>
+        <p class="fh-restricted-text">
+            Este subforo contiene material para mayores de 16 años.<br/>
+            Inicia sesión para ver las publicaciones.
+        </p>
+        <a href="/login" class="btn-login-cta me-2">
+            <i class="bi bi-box-arrow-in-right"></i>Iniciar Sesión
+        </a>
+        <a href="/registro" class="btn btn-login">
+            <i class="bi bi-person-plus"></i>Registrarse
+        </a>
+    </div><!-- /muro restringido -->
+ 
+ 
+    <!-- ══════════════════════════════════════════════
+         CONTENIDO DEL SUBFORO
+         Se muestra si:
+           (a) El subforo NO es +16, O
+           (b) El subforo ES +16 pero el usuario está autenticado.
+         Usamos th:if con condición combinada.
+         ══════════════════════════════════════════════ -->
+    <div th:if="${!subforo.esAdulto or #authorization.expression('isAuthenticated()')}">
+ 
+        <!-- Barra de acciones -->
+        <div class="fh-action-bar">
+            <!-- Botones de ordenamiento -->
+            <div class="fh-sort-tabs">
+                <a th:href="@{/subforo/{id}(id=${subforo.id}, sort='reciente')}"
+                   class="fh-sort-btn"
+                   th:classappend="${sort == 'reciente' or sort == null} ? ' active'">
+                    <i class="bi bi-clock me-1"></i>Reciente
+                </a>
+                <a th:href="@{/subforo/{id}(id=${subforo.id}, sort='top')}"
+                   class="fh-sort-btn"
+                   th:classappend="${sort == 'top'} ? ' active'">
+                    <i class="bi bi-arrow-up-circle me-1"></i>Top
+                </a>
+            </div>
+ 
+            <!-- Botón "Crear Publicación" → solo para usuarios logueados -->
+            <a sec:authorize="isAuthenticated()"
+               th:href="@{/crear(subforoId=${subforo.id})}"
+               class="btn-crear">
+                <i class="bi bi-pencil-square"></i>Crear Publicación
+            </a>
+        </div><!-- /action-bar -->
+ 
+        <!-- ── Lista de publicaciones ── -->
+        <!--
+            "publicaciones" es inyectada por SubforoController.java
+            ordenada por fecha más reciente por defecto (o por puntuación si sort=top).
+        -->
+ 
+        <div th:if="${not #lists.isEmpty(publicaciones)}">
+            <div class="fh-card" th:each="pub : ${publicaciones}">
+ 
+                <!-- Puntuación -->
+                <div class="fh-score-col">
+                    <span class="fh-score-val"
+                          th:classappend="${pub.puntuacion > 0} ? 'positive' : (${pub.puntuacion < 0} ? 'negative' : 'neutral')"
+                          th:text="${pub.puntuacion}">0</span>
+                    <span class="fh-score-label">pts</span>
+                </div>
+ 
+                <!-- Cuerpo de tarjeta -->
+                <div class="fh-card-body">
+ 
+                    <div class="fh-card-meta">
+                        <!-- Badge +16 si la publicación individual es adulta pero el subforo no -->
+                        <span th:if="${pub.esAdulto and !subforo.esAdulto}" class="fh-badge-adult">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>+16
+                        </span>
+                    </div>
+ 
+                    <div class="fh-card-title">
+                        <a th:href="@{/publicacion/{id}(id=${pub.id})}"
+                           th:text="${pub.titulo}">Título</a>
+                    </div>
+ 
+                    <p class="fh-card-excerpt" th:text="${pub.descripcion}">
+                        Extracto de la publicación…
+                    </p>
+ 
+                    <div class="fh-card-footer">
+                        <span class="fh-meta-pill">
+                            <i class="bi bi-person-circle"></i>
+                            <a th:href="@{/perfil/{nick}(nick=${pub.autor.nickname})}"
+                               th:text="${pub.autor.nickname}">autor</a>
+                        </span>
+                        <span class="fh-meta-pill">
+                            <i class="bi bi-chat"></i>
+                            <span th:text="${pub.conteoComentarios} + ' comentarios'">0 comentarios</span>
+                        </span>
+                        <span class="fh-meta-pill">
+                            <i class="bi bi-clock"></i>
+                            <span th:text="${#temporals.format(pub.fechaCreacion, 'dd MMM yyyy')}">
+                                01 ene 2025
+                            </span>
+                        </span>
+                    </div>
+ 
+                </div><!-- /fh-card-body -->
+            </div><!-- /fh-card -->
+        </div>
+ 
+        <!-- Estado vacío -->
+        <div class="fh-empty" th:if="${#lists.isEmpty(publicaciones)}">
+            <i class="bi bi-journal-x"></i>
+            <p class="mb-0">Aún no hay publicaciones en este subforo.</p>
+            <a sec:authorize="isAuthenticated()"
+               th:href="@{/crear(subforoId=${subforo.id})}"
+               class="btn-crear mt-3 d-inline-flex">
+                <i class="bi bi-pencil-square"></i>Crear la primera publicación
+            </a>
+        </div>
+ 
+    </div><!-- /contenido visible -->
+ 
+</main>
+</body>
+</html>

@@ -69,4 +69,22 @@
 		</plugins>
 	</build>
 
+	<!-- Motor de plantillas Thymeleaf -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+
+<!-- Controlador web (para que funcionen las rutas) -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<!-- Extra: integración de Spring Security con Thymeleaf (para sec:authorize) -->
+<dependency>
+    <groupId>org.thymeleaf.extras</groupId>
+    <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+</dependency>
+
 </project>
