@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{base :: layout(~{::main-content})}">
+
+    <th:block th:fragment="main-content">
+
+        <!-- Publicación -->
+        <div class="fh-card">
+
+            <div class="card-body-inner">
+
+                <div class="card-meta">
+                    <span class="badge-subforo"
+                          th:text="${publicacion.subforo.nombre}">
+                        Subforo
+                    </span>
+                </div>
+
+                <h3 class="card-title"
+                    th:text="${publicacion.titulo}">
+                    Título
+                </h3>
+
+                <p class="card-excerpt"
+                   th:text="${publicacion.contenido}">
+                    Contenido
+                </p>
+
+                <div class="card-foot">
+                    <span>
+                        <i class="bi bi-person-circle"></i>
+                        <span th:text="${publicacion.autor}"></span>
+                    </span>
+
+                    <span>
+                        <i class="bi bi-clock"></i>
+                        <span th:text="${publicacion.fecha}"></span>
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Comentarios -->
+        <h5 class="mt-4">Comentarios</h5>
+
+        <div th:each="comentario : ${comentarios}" class="fh-card">
+            <div class="card-body-inner">
+                <p th:text="${comentario.contenido}"></p>
+                <small class="text-muted"
+                       th:text="${comentario.autor}">
+                </small>
+            </div>
+        </div>
+
+        <!-- Nuevo comentario -->
+        <div class="mt-4">
+            <form th:action="@{/comentar}" method="post">
+                <input type="hidden" name="publicacionId"
+                       th:value="${publicacion.id}"/>
+
+                <textarea name="contenido"
+                          class="form-control mb-2"
+                          placeholder="Escribe un comentario..."
+                          required></textarea>
+
+                <button class="btn btn-primary">Comentar</button>
+            </form>
+        </div>
+
+    </th:block>
+
+</div>
+</html>
