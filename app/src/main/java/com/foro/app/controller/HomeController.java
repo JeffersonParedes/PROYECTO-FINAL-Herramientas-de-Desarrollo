@@ -8,11 +8,16 @@ import java.util.List;
 @Controller
 public class HomeController {
 
-    @GetMapping("/")
+    @GetMapping({"/", "/index"})
     public String home(Model model) {
         // Por ahora lista vacía, luego conectas la base de datos
         model.addAttribute("publicaciones", List.of());
         model.addAttribute("subforos", List.of());
         return "index";   // ← busca templates/index.html automáticamente
+    }
+
+    @GetMapping("/subforo")
+    public String subforo() {
+        return "subforo"; // carga subforo.html
     }
 }
