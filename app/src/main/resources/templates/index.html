@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="es">
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"></html>>
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -323,7 +323,7 @@
  
 <!-- ══════════════ NAVBAR ══════════════ -->
 <nav class="fh-navbar">
-    <a href="index.html" class="fh-logo">
+    <a th:href="@{/}" class="fh-logo">
         <span class="fh-logo-icon"><i class="bi bi-chat-dots-fill"></i></span>
         Falk<span>Place</span>
     </a>
@@ -347,7 +347,7 @@
     <!-- SIDEBAR -->
     <aside class="fh-sidebar">
         <p class="sidebar-label">Navegación</p>
-        <a href="index.html" class="sidebar-link active">
+        <a th:href="@{/}" class="sidebar-link active">
             <i class="bi bi-house-door"></i> Inicio
         </a>
         <a href="#" class="sidebar-link">
@@ -362,9 +362,9 @@
             <i class="bi bi-chevron-down arrow"></i>
         </button>
         <div class="acc-body">
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> RPG</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> FPS</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Indie</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> RPG</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> FPS</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Indie</a>
         </div>
  
         <!-- Subforo 2 -->
@@ -373,9 +373,9 @@
             <i class="bi bi-chevron-down arrow"></i>
         </button>
         <div class="acc-body">
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Películas</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Series</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Anime</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Películas</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Series</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Anime</a>
         </div>
  
         <!-- Subforo 3 -->
@@ -384,9 +384,9 @@
             <i class="bi bi-chevron-down arrow"></i>
         </button>
         <div class="acc-body">
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Hardware</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Programación</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Móviles</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Hardware</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Programación</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Móviles</a>
         </div>
  
         <!-- Subforo 4 -->
@@ -395,9 +395,9 @@
             <i class="bi bi-chevron-down arrow"></i>
         </button>
         <div class="acc-body">
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Rock</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Electrónica</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Hip-hop</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Rock</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Electrónica</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Hip-hop</a>
         </div>
     </aside>
  
@@ -436,7 +436,7 @@
             </div>
             <div class="card-body-inner">
                 <div class="card-meta">
-                    <a href="subforo.html" class="badge-subforo">f/ Videojuegos</a>
+                    <a th:href="@{/subforo}" class="badge-subforo">f/ Videojuegos</a>
                 </div>
                 <div class="card-title">
                     <a href="publicacion.html">¿Cuál es el mejor RPG de la última década?</a>
@@ -460,7 +460,7 @@
             </div>
             <div class="card-body-inner">
                 <div class="card-meta">
-                    <a href="subforo.html" class="badge-subforo">f/ Tecnología</a>
+                    <a th:href="@{/subforo}" class="badge-subforo">f/ Tecnología</a>
                 </div>
                 <div class="card-title">
                     <a href="publicacion.html">Por qué cambié de Windows a Linux y no me arrepiento</a>
@@ -484,7 +484,7 @@
             </div>
             <div class="card-body-inner">
                 <div class="card-meta">
-                    <a href="subforo.html" class="badge-subforo">f/ Entretenimiento</a>
+                    <a th:href="@{/subforo}" class="badge-subforo">f/ Entretenimiento</a>
                     <span class="badge-adult"><i class="bi bi-exclamation-triangle-fill me-1"></i>+16</span>
                 </div>
                 <div class="card-title">
@@ -509,7 +509,7 @@
             </div>
             <div class="card-body-inner">
                 <div class="card-meta">
-                    <a href="subforo.html" class="badge-subforo">f/ Música</a>
+                    <a th:href="@{/subforo}" class="badge-subforo">f/ Música</a>
                 </div>
                 <div class="card-title">
                     <a href="publicacion.html">Álbumes imprescindibles del rock progresivo que debes escuchar</a>
@@ -533,7 +533,7 @@
             </div>
             <div class="card-body-inner">
                 <div class="card-meta">
-                    <a href="subforo.html" class="badge-subforo">f/ Tecnología</a>
+                    <a th:href="@{/subforo}" class="badge-subforo">f/ Tecnología</a>
                 </div>
                 <div class="card-title">
                     <a href="publicacion.html">Las IAs van a reemplazar todos los empleos para 2026</a>

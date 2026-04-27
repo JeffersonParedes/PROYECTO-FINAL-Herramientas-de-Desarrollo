@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8"/>
@@ -281,9 +281,9 @@
             <i class="bi bi-chevron-down arrow" style="transform:rotate(180deg)"></i>
         </button>
         <div class="acc-body show">
-            <a href="subforo.html" class="sub-link active"><span class="dot"></span> RPG</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> FPS</a>
-            <a href="subforo.html" class="sub-link"><span class="dot"></span> Indie</a>
+            <a th:href="@{/subforo}" class="sub-link active"><span class="dot"></span> RPG</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> FPS</a>
+            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Indie</a>
         </div>
  
         <button class="acc-btn" onclick="toggleAcc(this)">
@@ -410,7 +410,9 @@
                 </div>
                 <div class="card-body-inner">
                     <div class="card-meta">
-                        <span class="badge-adult"><i class="bi bi-exclamation-triangle-fill me-1"></i>+16</span>
+                        <span class="badge-adult open-adult-modal" style="cursor:pointer;">
+    <i class="bi bi-exclamation-triangle-fill me-1"></i>+16
+</span>
                     </div>
                     <div class="card-title">
                         <a href="publicacion.html">Los juegos de terror más perturbadores de la última generación</a>
@@ -473,6 +475,41 @@
         document.getElementById('muro-label').textContent = muroActivo ? 'Desactivar restricción' : 'Activar restricción';
     }
 </script>
+<div class="modal fade" id="adultModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4" style="border-radius:16px;">
+
+            <i class="bi bi-exclamation-triangle-fill mb-3"
+               style="font-size:3rem; color:#f59e0b;"></i>
+
+            <h5 class="fw-bold">Content Warning</h5>
+
+            <p class="text-muted">
+                Este contenido es para mayores de 16 años.
+            </p>
+
+            <button class="btn btn-dark" data-bs-dismiss="modal">
+                Entiendo, continuar
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const botones = document.querySelectorAll(".open-adult-modal");
+
+    botones.forEach(btn => {
+        btn.addEventListener("click", function () {
+            const modal = new bootstrap.Modal(document.getElementById('adultModal'));
+            modal.show();
+        });
+    });
+
+});
+</script>
+
 </body>
 </html>
- 

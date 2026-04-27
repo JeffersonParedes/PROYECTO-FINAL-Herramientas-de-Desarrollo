@@ -8,8 +8,10 @@ import java.util.List;
 @Controller
 public class HomeController {
 
-    @GetMapping("/")
-    public String home(Model model) {
+    @GetMapping("/index")
+    public String index(Model model) {
+        model.addAttribute("pageTitle", "Inicio");
+        model.addAttribute("currentPage", "home");
         model.addAttribute("publicaciones", List.of());
         model.addAttribute("subforos", List.of());
         return "index";
@@ -17,8 +19,12 @@ public class HomeController {
 
     @GetMapping("/subforo")
     public String subforo(Model model) {
+        model.addAttribute("pageTitle", "Videojuegos");
+        model.addAttribute("currentPage", "subforo");
+        model.addAttribute("currentSubforoId", null);
         model.addAttribute("usuarioLogueado", false);
         model.addAttribute("subforoAdulto", true);
+        model.addAttribute("subforos", List.of());
         return "subforo";
     }
 }
