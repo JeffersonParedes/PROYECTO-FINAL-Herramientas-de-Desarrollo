@@ -21,7 +21,7 @@
 
 <!-- NAVBAR mejorado -->
 <nav th:fragment="navbar" class="fh-navbar">
-    <a th:href="@{/}" class="fh-logo">
+    <a th:href="@{/index}" class="fh-logo">
         <div class="fh-logo-icon">
             <i class="bi bi-chat-dots-fill"></i>
         </div>
@@ -39,10 +39,10 @@
     </div>
 
     <div class="nav-actions">
-        <a href="/login" class="btn-login">
+        <a th:href="@{/login}" class="btn-login">
             <i class="bi bi-box-arrow-in-right"></i> Login
         </a>
-        <a href="/registro" class="btn-register">
+        <a th:href="@{/registro}" class="btn-register">
             <i class="bi bi-person-plus"></i> Registro
         </a>
     </div>
@@ -51,6 +51,18 @@
 <!-- SIDEBAR mejorado -->
 <aside th:fragment="sidebar" class="fh-sidebar">
     <div class="sidebar-label">
+        <i class="bi bi-list-ul me-1"></i> Navegación
+    </div>
+    <div class="sidebar-link-group">
+        <a th:href="@{/index}" class="sub-link">
+            <i class="bi bi-house-door-fill me-2"></i> Inicio
+        </a>
+        <a th:href="@{/tendencias}" class="sub-link">
+            <i class="bi bi-fire me-2"></i> Tendencias
+        </a>
+    </div>
+
+    <div class="sidebar-label mt-4">
         <i class="bi bi-grid-3x3-gap-fill me-1"></i> Subforos
     </div>
 

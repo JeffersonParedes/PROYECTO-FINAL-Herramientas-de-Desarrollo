@@ -20,9 +20,8 @@
         <!-- Hero -->
         <div class="fh-hero">
             <h1>Bienvenido a <span>FalkPlace</span></h1>
-            <p>Descubre las publicaciones más valoradas por la comunidad, debate, aprende y conecta.</p>
             <div class="fh-hero-actions">
-                <a href="/registro" class="btn-register">
+                <a th:href="@{/registro}" class="btn-register">
                     <i class="bi bi-person-plus me-1"></i>Únete ahora
                 </a>
                 <a href="#feed" class="btn-login">
@@ -51,13 +50,13 @@
                     <a th:href="@{/subforo}" class="badge-subforo">f/ Videojuegos</a>
                 </div>
                 <div class="card-title">
-                    <a href="publicacion.html">¿Cuál es el mejor RPG de la última década?</a>
+                    <a th:href="@{/publicacion}">¿Cuál es el mejor RPG de la última década?</a>
                 </div>
                 <p class="card-excerpt">
                     Llevo semanas pensando en esto y creo que Elden Ring se lleva la corona, pero hay argumentos sólidos para Baldur's Gate 3...
                 </p>
                 <div class="card-foot">
-                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a href="perfil.html">gamer_pro</a></span>
+                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">gamer_pro</a></span>
                     <span class="meta-pill"><i class="bi bi-chat"></i> 142 comentarios</span>
                     <span class="meta-pill"><i class="bi bi-clock"></i> 12 abr 2025</span>
                 </div>
@@ -75,13 +74,13 @@
                     <a th:href="@{/subforo}" class="badge-subforo">f/ Tecnología</a>
                 </div>
                 <div class="card-title">
-                    <a href="publicacion.html">Por qué cambié de Windows a Linux y no me arrepiento</a>
+                    <a th:href="@{/publicacion}">Por qué cambié de Windows a Linux y no me arrepiento</a>
                 </div>
                 <p class="card-excerpt">
                     Después de 15 años usando Windows, decidí dar el salto. Aquí mi experiencia tras 6 meses usando Arch Linux en mi trabajo diario...
                 </p>
                 <div class="card-foot">
-                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a href="perfil.html">linuxero42</a></span>
+                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">linuxero42</a></span>
                     <span class="meta-pill"><i class="bi bi-chat"></i> 89 comentarios</span>
                     <span class="meta-pill"><i class="bi bi-clock"></i> 10 abr 2025</span>
                 </div>
@@ -106,7 +105,7 @@
             Compilé una lista con más de 30 series de thriller psicológico ordenadas por intensidad y calidad narrativa...
         </p>
         <div class="card-foot">
-            <span class="meta-pill"><i class="bi bi-person-circle"></i><a href="perfil.html">cinefilo_x</a></span>
+            <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">cinefilo_x</a></span>
             <span class="meta-pill"><i class="bi bi-chat"></i> 57 comentarios</span>
             <span class="meta-pill"><i class="bi bi-clock"></i> 08 abr 2025</span>
         </div>
@@ -124,13 +123,13 @@
                     <a th:href="@{/subforo}" class="badge-subforo">f/ Música</a>
                 </div>
                 <div class="card-title">
-                    <a href="publicacion.html">Álbumes imprescindibles del rock progresivo que debes escuchar</a>
+                    <a th:href="@{/publicacion}">Álbumes imprescindibles del rock progresivo que debes escuchar</a>
                 </div>
                 <p class="card-excerpt">
                     Pink Floyd, Yes, Genesis, King Crimson... una guía para iniciarse en el rock progresivo sin perderse en el camino.
                 </p>
                 <div class="card-foot">
-                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a href="perfil.html">prog_rocks</a></span>
+                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">prog_rocks</a></span>
                     <span class="meta-pill"><i class="bi bi-chat"></i> 43 comentarios</span>
                     <span class="meta-pill"><i class="bi bi-clock"></i> 05 abr 2025</span>
                 </div>
@@ -148,13 +147,13 @@
                     <a th:href="@{/subforo}" class="badge-subforo">f/ Tecnología</a>
                 </div>
                 <div class="card-title">
-                    <a href="publicacion.html">Las IAs van a reemplazar todos los empleos para 2026</a>
+                    <a th:href="@{/publicacion}">Las IAs van a reemplazar todos los empleos para 2026</a>
                 </div>
                 <p class="card-excerpt">
                     Opinión controversial sobre el impacto de la inteligencia artificial en el mercado laboral global...
                 </p>
                 <div class="card-foot">
-                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a href="perfil.html">apocalipsis_tech</a></span>
+                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">apocalipsis_tech</a></span>
                     <span class="meta-pill"><i class="bi bi-chat"></i> 201 comentarios</span>
                     <span class="meta-pill"><i class="bi bi-clock"></i> 03 abr 2025</span>
                 </div>
@@ -166,15 +165,6 @@
  
 <!-- SCRIPTS desde base -->
 <div th:replace="base :: scripts"></div>
-
-
-
-
-    </main>
-</div><!-- /fh-layout -->
-
-<    </main>
-</div><!-- /fh-layout -->
 
 <!-- MODAL DE ADVERTENCIA +16 -->
 <div class="modal fade" id="adultModal" tabindex="-1">

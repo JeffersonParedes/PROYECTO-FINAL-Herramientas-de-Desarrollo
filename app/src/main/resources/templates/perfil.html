@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<!-- HEAD desde base -->
+<head th:replace="base :: head('Perfil | FalkPlace')"></head>
+
+<body>
+
+<!-- NAVBAR desde base -->
+<nav th:replace="base :: navbar"></nav>
+
+<div class="fh-layout">
+
+    <!-- SIDEBAR desde base -->
+    <aside th:replace="base :: sidebar"></aside>
+
+    <!-- MAIN -->
+    <main class="fh-main">
+        <div class="container mt-5">
+            <h1>Perfil de Usuario</h1>
+            <p class="text-muted">Esta sección está siendo desarrollada.</p>
+            <a th:href="@{/index}" class="btn btn-primary mt-3">Volver al Inicio</a>
+        </div>
+    </main>
+</div><!-- /fh-layout -->
+
+<!-- SCRIPTS desde base -->
+<div th:replace="base :: scripts"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

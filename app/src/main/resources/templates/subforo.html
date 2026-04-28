@@ -57,10 +57,10 @@
             <p class="restricted-text">
                 Este subforo contiene material +16. Inicia sesión para ver las publicaciones.
             </p>
-            <a href="/login" class="btn-crear me-2">
+            <a th:href="@{/login}" class="btn-crear me-2">
                 <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
             </a>
-            <a href="/registro" class="btn-login">
+            <a th:href="@{/registro}" class="btn-login">
                 <i class="bi bi-person-plus"></i> Registrarse
             </a>
         </div>
@@ -74,7 +74,7 @@
                     <a href="#" class="sort-btn active"><i class="bi bi-clock"></i> Reciente</a>
                     <a href="#" class="sort-btn"><i class="bi bi-arrow-up-circle"></i> Top</a>
                 </div>
-                <a href="crear.html" class="btn-crear">
+                <a th:href="@{/crear}" class="btn-crear">
                     <i class="bi bi-pencil-square"></i> Crear Publicación
                 </a>
             </div>
@@ -88,13 +88,13 @@
                 <div class="card-body-inner">
                     <div class="card-meta"></div>
                     <div class="card-title">
-                        <a href="publicacion.html">Elden Ring vs Baldur's Gate 3 — ¿Cuál es el mejor RPG moderno?</a>
+                        <a th:href="@{/publicacion}">Elden Ring vs Baldur's Gate 3 — ¿Cuál es el mejor RPG moderno?</a>
                     </div>
                     <p class="card-excerpt">
                         Dos titanes del género en un debate sin fin. Comparto mi análisis después de terminar ambos juegos al 100%...
                     </p>
                     <div class="card-foot">
-                        <span class="meta-pill"><i class="bi bi-person-circle"></i><a href="perfil.html">gamer_pro</a></span>
+                        <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">gamer_pro</a></span>
                         <span class="meta-pill"><i class="bi bi-chat"></i> 95 comentarios</span>
                         <span class="meta-pill"><i class="bi bi-clock"></i> 25 abr 2025</span>
                     </div>
@@ -120,7 +120,7 @@
                         Contenido para los amantes del horror. Desde Resident Evil Village hasta Amnesia: The Bunker, estos títulos no son para cardíacos...
                     </p>
                     <div class="card-foot">
-                        <span class="meta-pill"><i class="bi bi-person-circle"></i><a href="perfil.html">horror_fan</a></span>
+                        <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">horror_fan</a></span>
                         <span class="meta-pill"><i class="bi bi-chat"></i> 41 comentarios</span>
                         <span class="meta-pill"><i class="bi bi-clock"></i> 23 abr 2025</span>
                     </div>
@@ -136,13 +136,13 @@
                 <div class="card-body-inner">
                     <div class="card-meta"></div>
                     <div class="card-title">
-                        <a href="publicacion.html">¿Vale la pena comprar una Steam Deck en 2025?</a>
+                        <a th:href="@{/publicacion}">¿Vale la pena comprar una Steam Deck en 2025?</a>
                     </div>
                     <p class="card-excerpt">
                         Llevo 3 meses con la Steam Deck OLED y quiero compartir mi experiencia real, tanto los puntos fuertes como los débiles del dispositivo...
                     </p>
                     <div class="card-foot">
-                        <span class="meta-pill"><i class="bi bi-person-circle"></i><a href="perfil.html">pc_master</a></span>
+                        <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">pc_master</a></span>
                         <span class="meta-pill"><i class="bi bi-chat"></i> 28 comentarios</span>
                         <span class="meta-pill"><i class="bi bi-clock"></i> 20 abr 2025</span>
                     </div>
