@@ -8,13 +8,18 @@ import java.util.List;
 @Controller
 public class HomeController {
 
-    @GetMapping("/index")
+   @GetMapping("/index")
     public String index(Model model) {
         model.addAttribute("pageTitle", "Inicio");
         model.addAttribute("currentPage", "home");
         model.addAttribute("publicaciones", List.of());
         model.addAttribute("subforos", List.of());
         return "index";
+    }
+
+@GetMapping("/")
+    public String rootRedirect() {
+        return "redirect:/index";
     }
 
     @GetMapping("/subforo")
@@ -26,6 +31,15 @@ public class HomeController {
         model.addAttribute("subforoAdulto", true);
         model.addAttribute("subforos", List.of());
         return "subforo";
+    }
+
+    @GetMapping("/tendencias")
+    public String tendencias(Model model) {
+        model.addAttribute("pageTitle", "Tendencias");
+        model.addAttribute("currentPage", "tendencias");
+        model.addAttribute("publicaciones", List.of());
+        model.addAttribute("subforos", List.of());
+        return "index";
     }
 
 // ── VISTAS DE TU EQUIPO (Thom_ y Leonardo) ──
@@ -58,6 +72,24 @@ public class HomeController {
         model.addAttribute("subforosPrincipales", List.of());
         
         return "admin";
+    }
+
+    @GetMapping("/crear")
+    public String crear(Model model) {
+        model.addAttribute("pageTitle", "Crear Publicación");
+        return "crear";
+    }
+
+    @GetMapping("/publicacion")
+    public String publicacion(Model model) {
+        model.addAttribute("pageTitle", "Publicación");
+        return "publicacion";
+    }
+
+    @GetMapping("/perfil")
+    public String perfil(Model model) {
+        model.addAttribute("pageTitle", "Perfil");
+        return "perfil";
     }
    
 }  
