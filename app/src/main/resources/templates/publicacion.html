@@ -1,76 +1,374 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle} + ' | ForoHub'">Publicacion | ForoHub</title>
 
-<div th:replace="~{base :: layout(~{::main-content})}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 
-    <th:block th:fragment="main-content">
+    <style>
+        :root {
+            --fh-bg:           #0f1117;
+            --fh-surface:      #1a1d27;
+            --fh-surface-2:    #22263a;
+            --fh-border:       #2e3248;
+            --fh-accent:       #6c63ff;
+            --fh-accent-light: #8b84ff;
+            --fh-amber:        #f59e0b;
+            --fh-danger:       #ef4444;
+            --fh-text:         #e2e5f0;
+            --fh-muted:        #8b8fa8;
+            --navbar-h:        62px;
+            --sidebar-w:       250px;
+        }
 
-        <!-- Publicación -->
-        <div class="fh-card">
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body {
+            background: var(--fh-bg);
+            color: var(--fh-text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+        }
+        a { color: var(--fh-accent-light); text-decoration: none; }
+        a:hover { color: #fff; }
 
-            <div class="card-body-inner">
+        .badge-subforo {
+            background: var(--fh-accent);
+            color: white;
+            border-radius: 6px;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
 
-                <div class="card-meta">
-                    <span class="badge-subforo"
-                          th:text="${publicacion.subforo.nombre}">
-                        Subforo
-                    </span>
+        .badge-adult {
+            background: var(--fh-danger);
+            color: white;
+            border-radius: 6px;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .btn-login {
+            background: transparent;
+            border: 1px solid var(--fh-border);
+            color: var(--fh-text);
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .btn-login:hover { border-color: var(--fh-accent); color: var(--fh-accent-light); }
+
+        .btn-register {
+            background: var(--fh-accent);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-register:hover { background: var(--fh-accent-light); }
+
+        .card-foot {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .meta-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--fh-muted);
+        }
+
+        .sort-btn {
+            background: transparent;
+            border: 1px solid var(--fh-border);
+            color: var(--fh-text);
+            border-radius: 6px;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sort-btn:hover { border-color: var(--fh-accent); color: var(--fh-accent-light); }
+        .sort-btn.active {
+            background: var(--fh-accent);
+            border-color: var(--fh-accent);
+            color: white;
+        }
+
+        /* ── NAVBAR ── */
+        .fh-navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--navbar-h);
+            background: var(--fh-surface);
+            border-bottom: 1px solid var(--fh-border);
+            display: flex; align-items: center;
+            padding: 0 1.25rem; gap: 1rem; z-index: 1040;
+        }
+        .fh-logo {
+            font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.25rem;
+            color: #fff; display: flex; align-items: center; gap: .45rem;
+        }
+        .fh-logo span { color: var(--fh-accent); }
+        .fh-logo-icon {
+            width: 28px; height: 28px; background: var(--fh-accent);
+            border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
+        }
+
+        /* ── MAIN CONTENT ── */
+        .fh-main-container {
+            padding-top: var(--navbar-h);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .post-shell { display: flex; flex-direction: column; gap: 1.4rem; }
+        .post-card {
+            background: var(--fh-surface);
+            border: 1px solid var(--fh-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        .post-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.15;
+        }
+        .post-fulltext {
+            color: var(--fh-text);
+            font-size: .95rem;
+            line-height: 1.8;
+            margin: 0;
+        }
+        .post-media {
+            min-height: 240px;
+            border: 1px dashed var(--fh-border);
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(108,99,255,.12), rgba(245,158,11,.08));
+        }
+        .post-sidebox,
+        .comment-box,
+        .comment-item-box {
+            background: var(--fh-surface-2);
+            border: 1px solid var(--fh-border);
+            border-radius: 14px;
+        }
+        .post-form-control,
+        .post-form-select {
+            background: transparent;
+            border: 1px solid var(--fh-border);
+            color: var(--fh-text);
+        }
+        .post-form-control::placeholder { color: var(--fh-muted); }
+        .post-form-control:focus,
+        .post-form-select:focus {
+            background: transparent;
+            color: var(--fh-text);
+            border-color: var(--fh-accent);
+            box-shadow: 0 0 0 .2rem rgba(108,99,255,.15);
+        }
+        .form-label { color: var(--fh-text); }
+
+        @media (max-width: 768px) {
+            .fh-main-container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="fh-navbar">
+        <a href="/" class="fh-logo text-decoration-none">
+            <span class="fh-logo-icon"><i class="bi bi-chat-dots-fill"></i></span>
+            Foro<span>Hub</span>
+        </a>
+        <div style="flex: 1;"></div>
+        <a href="/login" class="btn-login me-1">Iniciar Sesión</a>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="fh-main-container container-lg">
+        <main>
+        <style>
+            .post-shell { display: flex; flex-direction: column; gap: 1.4rem; }
+            .post-card {
+                background: var(--fh-surface);
+                border: 1px solid var(--fh-border);
+                border-radius: 16px;
+                padding: 1.5rem;
+            }
+            .post-title {
+                font-family: 'Sora', sans-serif;
+                font-size: 2rem;
+                font-weight: 700;
+                margin: 0;
+                line-height: 1.15;
+            }
+            .post-fulltext {
+                color: var(--fh-text);
+                font-size: .95rem;
+                line-height: 1.8;
+                margin: 0;
+            }
+            .post-media {
+                min-height: 240px;
+                border: 1px dashed var(--fh-border);
+                border-radius: 16px;
+                background: linear-gradient(135deg, rgba(108,99,255,.12), rgba(245,158,11,.08));
+            }
+            .post-sidebox,
+            .comment-box,
+            .comment-item-box {
+                background: var(--fh-surface-2);
+                border: 1px solid var(--fh-border);
+                border-radius: 14px;
+            }
+            .post-form-control,
+            .post-form-select {
+                background: transparent;
+                border: 1px solid var(--fh-border);
+                color: var(--fh-text);
+            }
+            .post-form-control::placeholder { color: var(--fh-muted); }
+            .post-form-control:focus,
+            .post-form-select:focus {
+                background: transparent;
+                color: var(--fh-text);
+                border-color: var(--fh-accent);
+                box-shadow: 0 0 0 .2rem rgba(108,99,255,.15);
+            }
+        </style>
+
+            <div class="post-shell">
+            <section class="post-card">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                    <div>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                            <span class="badge-subforo" th:text="${publicacion.subforo}">Herramientas de Desarrollo</span>
+                            <span class="badge-adult" th:if="${publicacion.adulto}">+16</span>
+                        </div>
+                        <h1 class="post-title mb-2" th:text="${publicacion.titulo}">
+                            Como organizar ramas en GitHub para un proyecto en equipo
+                        </h1>
+                        <div class="card-foot">
+                            <span class="meta-pill">
+                                <i class="bi bi-person-circle"></i>
+                                <a href="#" th:text="${publicacion.autor}">Sandy</a>
+                            </span>
+                            <span class="meta-pill">
+                                <i class="bi bi-clock"></i>
+                                <span th:text="${publicacion.fecha}">27 abr 2026</span>
+                            </span>
+                        </div>
+                    </div>
+                    <button class="btn-login" type="button" data-bs-toggle="modal" data-bs-target="#reportModal">
+                        <i class="bi bi-flag me-1"></i> Reportar
+                    </button>
                 </div>
 
-                <h3 class="card-title"
-                    th:text="${publicacion.titulo}">
-                    Título
-                </h3>
-
-                <p class="card-excerpt"
-                   th:text="${publicacion.contenido}">
-                    Contenido
+                <p class="post-fulltext mb-4" th:text="${publicacion.descripcion}">
+                    Descripcion completa de la publicacion.
                 </p>
 
-                <div class="card-foot">
-                    <span>
-                        <i class="bi bi-person-circle"></i>
-                        <span th:text="${publicacion.autor}"></span>
-                    </span>
-
-                    <span>
-                        <i class="bi bi-clock"></i>
-                        <span th:text="${publicacion.fecha}"></span>
-                    </span>
+                <div class="post-media p-4 mb-4 text-center">
+                    <div class="h-100 d-flex flex-column justify-content-center align-items-center gap-2">
+                        <i class="bi bi-image fs-1" style="color: var(--fh-accent-light);"></i>
+                        <strong th:text="${publicacion.mediaTitulo}">Espacio multimedia</strong>
+                        <span class="text-muted" th:text="${publicacion.mediaDescripcion}">
+                            Imagen, video o audio adjunto a la publicacion.
+                        </span>
+                    </div>
                 </div>
 
+                <div class="row g-3 align-items-stretch">
+                    <div class="col-lg-7">
+                        <div class="post-sidebox h-100 p-3">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="sort-btn active" type="button">Util</button>
+                                <button class="sort-btn" type="button">Interesante</button>
+                                <button class="sort-btn" type="button">De acuerdo</button>
+                                <button class="sort-btn" type="button">Aporta</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="post-sidebox h-100 p-3 d-flex flex-column justify-content-center">
+                            <strong class="mb-1">Puntuacion total: <span th:text="${publicacion.puntuacion}">+2</span></strong>
+                            <span class="text-muted">Indicador visual segun las reacciones permitidas por el foro.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="post-card">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <h2 class="m-0" style="font-family: 'Sora', sans-serif; font-size: 1.2rem;">Comentarios</h2>
+                    <small class="text-muted" th:text="${#lists.size(comentarios)} + ' comentarios'">3 comentarios</small>
+                </div>
+
+                <div class="comment-box p-3 mb-4">
+                    <label class="form-label fw-semibold">Agregar comentario</label>
+                    <textarea class="form-control post-form-control mb-3" rows="4" placeholder="Escribe un comentario"></textarea>
+                    <button class="btn-register" type="button">Comentar</button>
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+                    <article class="comment-item-box p-3" th:each="comentario : ${comentarios}">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                            <strong th:text="${comentario.autor}">JeanFranco</strong>
+                            <small class="text-muted" th:text="${comentario.fecha}">27/04/2026</small>
+                        </div>
+                        <p class="mb-0" th:text="${comentario.texto}">
+                            Comentario del hilo.
+                        </p>
+                    </article>
+                </div>
+            </section>
             </div>
+        </main>
+    </div>
 
-        </div>
-
-        <!-- Comentarios -->
-        <h5 class="mt-4">Comentarios</h5>
-
-        <div th:each="comentario : ${comentarios}" class="fh-card">
-            <div class="card-body-inner">
-                <p th:text="${comentario.contenido}"></p>
-                <small class="text-muted"
-                       th:text="${comentario.autor}">
-                </small>
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--fh-surface); border: 1px solid var(--fh-border); color: var(--fh-text);">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title">Reportar contenido</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Motivo</label>
+                    <select class="form-select post-form-select mb-3">
+                        <option>Spam</option>
+                        <option>Contenido ofensivo</option>
+                        <option>Informacion falsa</option>
+                        <option>Contenido inapropiado</option>
+                    </select>
+                    <button class="btn-register" type="button">Enviar reporte</button>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Nuevo comentario -->
-        <div class="mt-4">
-            <form th:action="@{/comentar}" method="post">
-                <input type="hidden" name="publicacionId"
-                       th:value="${publicacion.id}"/>
-
-                <textarea name="contenido"
-                          class="form-control mb-2"
-                          placeholder="Escribe un comentario..."
-                          required></textarea>
-
-                <button class="btn btn-primary">Comentar</button>
-            </form>
-        </div>
-
-    </th:block>
-
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
