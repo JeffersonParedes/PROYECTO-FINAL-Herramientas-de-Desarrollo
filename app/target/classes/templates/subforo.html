@@ -1,35 +1,35 @@
 ﻿<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
+ 
 <!-- HEAD desde base -->
 <head th:replace="base :: head('Videojuegos | FalkPlace')"></head>
-
+ 
 <body>
-
+ 
 <!-- NAVBAR desde base -->
 <nav th:replace="base :: navbar"></nav>
-
+ 
 <div class="fh-layout">
-
+ 
     <!-- SIDEBAR desde base -->
     <aside th:replace="base :: sidebar"></aside>
-
+ 
     <!-- MAIN -->
     <main class="fh-main">
-
+ 
         <!-- ══════════════ CABECERA SUBFORO ══════════════ -->
         <div class="subforo-header">
             <div class="d-flex align-items-start gap-3 flex-wrap">
                 <div class="subforo-icon">
                     <i class="bi bi-controller"></i>
                 </div>
-
+ 
                 <div>
                     <h1 class="subforo-name">Videojuegos</h1>
                     <p class="subforo-desc">
                         Discusiones, análisis, recomendaciones y novedades del mundo de los videojuegos.
                     </p>
-
+ 
                     <div class="subforo-stats">
                         <span class="stat">
                             <i class="bi bi-file-text"></i>
@@ -43,14 +43,14 @@
                 </div>
             </div>
         </div>
-
+ 
         <!-- ACTION BAR -->
         <div class="mb-3 d-flex align-items-center gap-2">
             <small class="text-muted">Subforo:</small>
             <span class="badge-subforo">Videojuegos</span>
         </div>
-
-        <!-- MURO RESTRINGIDO (demo igual que tenías) -->
+ 
+        <!-- MURO RESTRINGIDO -->
         <div class="fh-restricted" id="muro-restringido" style="display:none;">
             <i class="bi bi-shield-lock restricted-icon"></i>
             <p class="restricted-title">Contenido restringido</p>
@@ -64,19 +64,25 @@
                 <i class="bi bi-person-plus"></i> Registrarse
             </a>
         </div>
-
-        <!-- CONTENIDO VISIBLE (cuando no hay restricción o el usuario está logueado) -->
+ 
+        <!-- CONTENIDO VISIBLE -->
         <div id="contenido-subforo">
  
-            <!-- Action bar -->
+            <!-- Action bar — FIX 1: botón toggle restricción reincorporado -->
             <div class="action-bar">
                 <div class="sort-tabs">
                     <a href="#" class="sort-btn active"><i class="bi bi-clock"></i> Reciente</a>
                     <a href="#" class="sort-btn"><i class="bi bi-arrow-up-circle"></i> Top</a>
                 </div>
-                <a th:href="@{/crear}" class="btn-crear">
-                    <i class="bi bi-pencil-square"></i> Crear Publicación
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleMuro()">
+                        <i class="bi bi-toggle-off" id="muro-icon"></i>
+                        <span id="muro-label">Activar restricción</span>
+                    </button>
+                    <a th:href="@{/crear}" class="btn-crear">
+                        <i class="bi bi-pencil-square"></i> Crear Publicación
+                    </a>
+                </div>
             </div>
  
             <!-- Tarjeta 1 (Normal) -->
@@ -155,15 +161,11 @@
 </div>
  
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    function toggleAcc(btn) {
-        const body = btn.nextElementSibling;
-        const isOpen = body.classList.contains('show');
-        document.querySelectorAll('.acc-body.show').forEach(b => b.classList.remove('show'));
-        document.querySelectorAll('.acc-btn.open').forEach(b => b.classList.remove('open'));
-        if (!isOpen) { body.classList.add('show'); btn.classList.add('open'); }
-    }
  
+<!-- FIX 2: scripts globales desde base (incluye toggleAccordion para el sidebar) -->
+<th:block th:replace="base :: scripts"></th:block>
+ 
+<script>
     // Demo visual del muro +16
     let muroActivo = false;
     function toggleMuro() {
@@ -174,7 +176,8 @@
         document.getElementById('muro-label').textContent = muroActivo ? 'Desactivar restricción' : 'Activar restricción';
     }
 </script>
-
+ 
+<!-- Modal +16 -->
 <div class="modal fade" id="adultModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-center p-4" style="border-radius:16px;">
@@ -190,10 +193,10 @@
         </div>
     </div>
 </div>
-
+ 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
+ 
     // Mostrar modal al hacer clic en badges +16
     const botones = document.querySelectorAll(".open-adult-modal");
     botones.forEach(btn => {
@@ -204,41 +207,33 @@ document.addEventListener("DOMContentLoaded", function () {
             modal.show();
         });
     });
-
-    // ========== NUEVO: Al hacer clic en cualquier parte de la tarjeta +16 ==========
+ 
+    // Al hacer clic en cualquier parte de la tarjeta +16
     const adultCards = document.querySelectorAll(".adult-card");
     let pendingUrl = '';
-    
+ 
     adultCards.forEach(card => {
         card.addEventListener("click", function (e) {
-            // Evitar que se active si hicieron clic en un enlace interno
-            if (e.target.tagName === 'A') {
-                return;
-            }
+            if (e.target.tagName === 'A') return;
             e.preventDefault();
             pendingUrl = this.getAttribute('data-url') || 'publicacion_adulto.html';
-            
             const modal = new bootstrap.Modal(document.getElementById('adultModal'));
             modal.show();
         });
     });
-    
+ 
     // Botón de confirmación del modal
     const confirmBtn = document.getElementById('confirmAdultBtn');
     if (confirmBtn) {
-        confirmBtn.addEventListener('click', function() {
-            if (pendingUrl) {
-                window.location.href = pendingUrl;
-            }
+        confirmBtn.addEventListener('click', function () {
+            if (pendingUrl) window.location.href = pendingUrl;
             const modal = bootstrap.Modal.getInstance(document.getElementById('adultModal'));
-            if (modal) {
-                modal.hide();
-            }
+            if (modal) modal.hide();
         });
     }
-
+ 
 });
 </script>
-
+ 
 </body>
 </html>
