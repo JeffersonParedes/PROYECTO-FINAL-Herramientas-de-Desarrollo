@@ -8,7 +8,7 @@ import java.util.List;
 @Controller
 public class HomeController {
 
-    @GetMapping("/index")
+   @GetMapping("/index")
     public String index(Model model) {
         model.addAttribute("pageTitle", "Inicio");
         model.addAttribute("currentPage", "home");
@@ -17,7 +17,7 @@ public class HomeController {
         return "index";
     }
 
-    @GetMapping("/subforo")
+  @GetMapping("/subforo")
     public String subforo(Model model) {
         model.addAttribute("pageTitle", "Videojuegos");
         model.addAttribute("currentPage", "subforo");

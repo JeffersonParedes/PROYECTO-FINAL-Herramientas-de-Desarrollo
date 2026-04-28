@@ -1,0 +1,864 @@
+/* ============================================
+   FORO.CSS - Estilos completos para FalkPlace
+   Basado en el diseño de la imagen de referencia
+   ============================================ */
+
+/* ===== VARIABLES GLOBALES ===== */
+:root {
+    --fh-bg: #0f1117;
+    --fh-surface: #1a1d27;
+    --fh-surface-2: #22263a;
+    --fh-border: #2e3248;
+    --fh-accent: #6c63ff;
+    --fh-accent-light: #8b84ff;
+    --fh-amber: #f59e0b;
+    --fh-danger: #ef4444;
+    --fh-success: #4ade80;
+    --fh-text: #e2e5f0;
+    --fh-muted: #8b8fa8;
+    --navbar-h: 62px;
+    --sidebar-w: 260px;
+}
+
+/* ===== RESET & BASE ===== */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    background: var(--fh-bg);
+    color: var(--fh-text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+a {
+    color: var(--fh-accent-light);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* ===== SCROLLBAR PERSONALIZADA ===== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--fh-surface);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--fh-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--fh-accent);
+}
+
+/* ===== NAVBAR ===== */
+.fh-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--navbar-h);
+    background: var(--fh-surface);
+    border-bottom: 1px solid var(--fh-border);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    gap: 1rem;
+    z-index: 1040;
+    backdrop-filter: blur(10px);
+}
+
+.fh-logo {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.fh-logo-icon {
+    width: 34px;
+    height: 34px;
+    background: var(--fh-accent);
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.fh-logo span {
+    color: var(--fh-accent);
+}
+
+/* Barra de búsqueda */
+.fh-search {
+    flex: 1;
+    max-width: 440px;
+}
+
+.fh-search .input-group {
+    background: var(--fh-surface-2);
+    border: 1px solid var(--fh-border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.fh-search .input-group:focus-within {
+    border-color: var(--fh-accent);
+}
+
+.fh-search .form-control {
+    background: transparent;
+    border: none;
+    color: var(--fh-text);
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.fh-search .form-control:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.fh-search .form-control::placeholder {
+    color: var(--fh-muted);
+}
+
+.fh-search .btn {
+    background: transparent;
+    border: none;
+    color: var(--fh-muted);
+    padding: 0.5rem 0.75rem;
+}
+
+.fh-search .btn:hover {
+    color: var(--fh-accent-light);
+}
+
+/* Acciones del navbar */
+.nav-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.btn-login {
+    border: 1px solid var(--fh-border);
+    background: transparent;
+    color: var(--fh-text);
+    border-radius: 10px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-login:hover {
+    border-color: var(--fh-accent);
+    color: var(--fh-accent-light);
+    background: rgba(108, 99, 255, 0.05);
+}
+
+.btn-register {
+    background: var(--fh-accent);
+    border: none;
+    color: #fff;
+    border-radius: 10px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-register:hover {
+    background: var(--fh-accent-light);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+.fh-layout {
+    display: flex;
+    min-height: 100vh;
+    padding-top: var(--navbar-h);
+}
+
+/* ===== SIDEBAR ===== */
+.fh-sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--fh-surface);
+    border-right: 1px solid var(--fh-border);
+    position: sticky;
+    top: var(--navbar-h);
+    height: calc(100vh - var(--navbar-h));
+    overflow-y: auto;
+    padding: 1rem 0;
+}
+
+.fh-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fh-muted);
+    padding: 0.5rem 1.2rem;
+    margin-top: 0.25rem;
+    font-weight: 600;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 10px;
+    color: var(--fh-muted);
+    font-size: 0.875rem;
+    margin: 0 0.5rem;
+    transition: all 0.15s;
+}
+
+.sidebar-link:hover {
+    background: var(--fh-surface-2);
+    color: var(--fh-text);
+    text-decoration: none;
+}
+
+.sidebar-link.active {
+    background: rgba(108, 99, 255, 0.15);
+    color: var(--fh-accent-light);
+}
+
+/* Acordeón del sidebar */
+.acc-btn {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--fh-muted);
+    font-size: 0.875rem;
+    padding: 0.5rem 1.2rem;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    border-radius: 10px;
+    margin: 0 0.5rem;
+    transition: all 0.15s;
+}
+
+.acc-btn:hover {
+    background: var(--fh-surface-2);
+    color: var(--fh-text);
+}
+
+.acc-btn .arrow {
+    margin-left: auto;
+    transition: transform 0.2s;
+}
+
+.acc-btn.open .arrow {
+    transform: rotate(180deg);
+}
+
+.acc-body {
+    padding: 0 0.5rem 0.25rem 2rem;
+    display: none;
+}
+
+.acc-body.show {
+    display: block;
+}
+
+.sub-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 8px;
+    color: var(--fh-muted);
+    font-size: 0.82rem;
+    transition: all 0.15s;
+}
+
+.sub-link:hover {
+    background: var(--fh-surface-2);
+    color: var(--fh-text);
+    text-decoration: none;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fh-accent);
+    flex-shrink: 0;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.fh-main {
+    flex: 1;
+    min-width: 0;
+    padding: 1.75rem 2rem;
+}
+
+/* ===== HERO SECTION ===== */
+.fh-hero {
+    background: linear-gradient(135deg, #1a1d27 0%, #12132a 100%);
+    border: 1px solid var(--fh-border);
+    border-radius: 20px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.fh-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -80px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(108, 99, 255, 0.25), transparent 70%);
+    pointer-events: none;
+}
+
+.fh-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139, 132, 255, 0.1), transparent 70%);
+    pointer-events: none;
+}
+
+.fh-hero h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.85rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+}
+
+.fh-hero h1 span {
+    color: var(--fh-accent);
+}
+
+.fh-hero p {
+    color: var(--fh-muted);
+    margin: 0;
+    font-size: 1rem;
+}
+
+.fh-hero-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+/* Botones del hero */
+.fh-hero-actions .btn-register {
+    background: var(--fh-accent);
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+}
+
+.fh-hero-actions .btn-login {
+    background: transparent;
+    border: 1px solid var(--fh-border);
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+    color: var(--fh-text);
+}
+
+.fh-hero-actions .btn-login:hover {
+    border-color: var(--fh-accent);
+    color: var(--fh-accent-light);
+}
+
+/* ===== FEED HEADER ===== */
+.feed-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.feed-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.feed-title i {
+    color: var(--fh-amber);
+}
+
+/* ===== ACTION BAR (subforo) ===== */
+.action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.sort-tabs {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--fh-surface);
+    border: 1px solid var(--fh-border);
+    border-radius: 12px;
+    padding: 0.25rem;
+}
+
+.sort-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 10px;
+    color: var(--fh-muted);
+    transition: all 0.2s;
+}
+
+.sort-btn:hover {
+    color: var(--fh-text);
+    background: var(--fh-surface-2);
+}
+
+.sort-btn.active {
+    background: var(--fh-accent);
+    color: #fff;
+}
+
+.btn-crear {
+    background: var(--fh-accent);
+    border: none;
+    color: #fff;
+    border-radius: 10px;
+    padding: 0.45rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-crear:hover {
+    background: var(--fh-accent-light);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* ===== CARD DE PUBLICACIÓN ===== */
+.fh-card {
+    background: var(--fh-surface);
+    border: 1px solid var(--fh-border);
+    border-radius: 16px;
+    padding: 1.1rem 1.3rem;
+    margin-bottom: 0.9rem;
+    display: flex;
+    gap: 1rem;
+    transition: all 0.2s ease;
+}
+
+.fh-card:hover {
+    border-color: var(--fh-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Columna de puntuación */
+.score-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 50px;
+    padding-top: 0.15rem;
+    gap: 0.2rem;
+}
+
+.score-val {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.score-val.pos {
+    color: var(--fh-success);
+}
+
+.score-val.neg {
+    color: var(--fh-danger);
+}
+
+.score-val.neu {
+    color: var(--fh-muted);
+}
+
+.score-lbl {
+    font-size: 0.65rem;
+    color: var(--fh-muted);
+}
+
+/* Cuerpo de la card */
+.card-body-inner {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.35rem;
+    align-items: center;
+}
+
+/* Badges */
+.badge-subforo {
+    background: rgba(108, 99, 255, 0.2);
+    color: var(--fh-accent-light);
+    border-radius: 8px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.badge-subforo:hover {
+    background: rgba(108, 99, 255, 0.35);
+    color: var(--fh-accent-light);
+}
+
+.badge-adult {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border-radius: 8px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.badge-adult:hover {
+    background: rgba(239, 68, 68, 0.35);
+}
+
+/* Título de la publicación */
+.card-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--fh-text);
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-title a {
+    color: inherit;
+}
+
+.card-title a:hover {
+    color: var(--fh-accent-light);
+}
+
+/* Extracto */
+.card-excerpt {
+    color: var(--fh-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+/* Pie de la card */
+.card-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    font-size: 0.77rem;
+    color: var(--fh-muted);
+    align-items: center;
+}
+
+.card-foot a {
+    color: var(--fh-muted);
+}
+
+.card-foot a:hover {
+    color: var(--fh-text);
+}
+
+.meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* ===== CABECERA DE SUBFORO ===== */
+.subforo-header {
+    background: var(--fh-surface);
+    border: 1px solid var(--fh-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.subforo-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(108, 99, 255, 0.15);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: var(--fh-accent);
+}
+
+.subforo-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+}
+
+.subforo-desc {
+    color: var(--fh-muted);
+    margin: 0 0 0.75rem;
+}
+
+.subforo-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--fh-muted);
+}
+
+.stat strong {
+    color: var(--fh-text);
+}
+
+/* ===== MURO RESTRINGIDO ===== */
+.fh-restricted {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 16px;
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    margin: 1rem 0;
+}
+
+.restricted-icon {
+    font-size: 3rem;
+    color: var(--fh-danger);
+    margin-bottom: 1rem;
+}
+
+.restricted-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+}
+
+.restricted-text {
+    color: var(--fh-muted);
+    margin-bottom: 1.25rem;
+}
+
+/* ===== MODAL DE CONTENIDO +16 ===== */
+.modal-content {
+    background: var(--fh-surface);
+    border: 1px solid var(--fh-border);
+    border-radius: 20px;
+}
+
+.modal-content .btn-dark {
+    background: var(--fh-accent);
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+}
+
+.modal-content .btn-dark:hover {
+    background: var(--fh-accent-light);
+}
+
+/* ===== ESTADO VACÍO ===== */
+.fh-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--fh-muted);
+}
+
+.fh-empty i {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+    .fh-sidebar {
+        width: 220px;
+    }
+
+    .fh-main {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .fh-sidebar {
+        display: none;
+    }
+
+    .fh-main {
+        padding: 1rem;
+    }
+
+    .fh-navbar {
+        padding: 0 1rem;
+    }
+
+    .fh-search {
+        max-width: 200px;
+    }
+
+    .fh-hero {
+        padding: 1.5rem;
+    }
+
+    .fh-hero h1 {
+        font-size: 1.4rem;
+    }
+
+    .fh-card {
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .score-col {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 0.5rem;
+        min-width: auto;
+    }
+
+    .card-title {
+        white-space: normal;
+    }
+}
+
+@media (max-width: 576px) {
+    .fh-search {
+        display: none;
+    }
+
+    .nav-actions .btn-login,
+    .nav-actions .btn-register {
+        padding: 0.3rem 0.7rem;
+        font-size: 0.75rem;
+    }
+
+    .sort-tabs {
+        width: 100%;
+    }
+
+    .sort-btn {
+        flex: 1;
+        text-align: center;
+    }
+
+    .btn-crear {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ===== UTILIDADES ADICIONALES ===== */
+.text-muted {
+    color: var(--fh-muted) !important;
+}
+
+.bg-surface {
+    background: var(--fh-surface);
+}
+
+.border-accent {
+    border-color: var(--fh-accent);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Animación de hover para los botones */
+.btn,
+.acc-btn,
+.sidebar-link,
+.sub-link {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sombras sutiles */
+.fh-card,
+.subforo-header,
+.fh-hero,
+.action-bar .sort-tabs {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
