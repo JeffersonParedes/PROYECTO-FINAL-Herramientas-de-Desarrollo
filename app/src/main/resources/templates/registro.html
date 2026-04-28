@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - Falk Place</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    
+    <style>
+
+        /* ── FONDO ANIMADO FALK PLACE ── */
+.fh-animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Lo mantiene detrás de todo */
+    background: var(--fh-bg);
+    overflow: hidden;
+}
+
+.fh-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px); /* Crea el efecto de luz difuminada */
+    opacity: 0.3; /* Mantiene la sutileza para no distraer */
+    animation: float 15s infinite ease-in-out alternate;
+}
+
+/* Orbe principal superior izquierdo */
+.fh-blob-1 {
+    width: 400px;
+    height: 400px;
+    background: var(--fh-accent);
+    top: -100px;
+    left: -100px;
+}
+
+/* Orbe secundario inferior derecho */
+.fh-blob-2 {
+    width: 350px;
+    height: 350px;
+    background: var(--fh-accent-light);
+    bottom: -100px;
+    right: -50px;
+    animation-direction: alternate-reverse; /* Se mueve en sentido contrario */
+    animation-delay: -5s;
+}
+
+/* Animación de flotación */
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        transform: translate(80px, 50px) scale(1.15);
+    }
+}
+        :root {
+            --fh-bg:           #0f1117;
+            --fh-surface:      #1a1d27;
+            --fh-surface-2:    #22263a;
+            --fh-border:       #2e3248;
+            --fh-accent:       #6c63ff;
+            --fh-accent-light: #8b84ff;
+            --fh-text:         #e2e5f0;
+            --fh-muted:        #8b8fa8;
+        }
+        body {
+            background-color: var(--fh-bg); 
+            color: var(--fh-text);
+            font-family: 'DM Sans', sans-serif;
+        }
+        .fh-card {
+            background: var(--fh-surface);
+            border: 1px solid var(--fh-border);
+            border-radius: 12px;
+            display: flex;
+        }
+        .fh-form-control {
+            background: var(--fh-surface-2); 
+            border: 1px solid var(--fh-border); 
+            color: var(--fh-text); 
+            border-radius: 8px;
+        }
+        .fh-form-control:focus {
+            background: var(--fh-surface-2); 
+            border-color: var(--fh-accent); 
+            color: var(--fh-text); 
+            box-shadow: 0 0 0 0.2rem rgba(108,99,255,.25);
+        }
+        .fh-form-label { 
+            color: var(--fh-muted); 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            margin-bottom: 0.3rem; 
+        }
+        .btn-register {
+            background: var(--fh-accent);
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn-register:hover { background: var(--fh-accent-light); color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="fh-animated-bg">
+        <div class="fh-blob fh-blob-1"></div>
+        <div class="fh-blob fh-blob-2"></div>
+    </div>
+
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+
+    <div class="container d-flex justify-content-center align-items-center py-5" style="min-height: 100vh;">
+        <div class="fh-card p-4 p-md-5" style="width: 100%; max-width: 600px; flex-direction: column;">
+            
+            <div class="d-flex justify-content-center align-items-center mb-3" style="transform: translateX(-5px);">
+    
+    <img th:src="@{/picture/logo.png}" alt="Logo Mascota" style="width: 80px; height: auto; margin-right: 1px;">
+    
+    <h2 style="font-family: 'Sora', sans-serif; font-weight: 700; margin: 0; font-size: 1.8rem; letter-spacing: -0.5px;">
+        Falk<span style="color: var(--fh-accent);">Place</span>
+    </h2>
+    
+</div>  
+
+            <div class="text-center mb-4">
+                <p style="color: var(--fh-muted); font-size: 0.9rem;">Únete a la comunidad</p>
+            </div>
+
+            <form th:action="@{/login}" method="GET">
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="nickname" class="fh-form-label">Nickname *</label>
+                        <input type="text" class="form-control fh-form-control" id="nickname" name="nickname" placeholder="Tu nombre visible" required autofocus>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="fh-form-label">Correo Electrónico *</label>
+                        <input type="email" class="form-control fh-form-control" id="email" name="email" placeholder="ejemplo@correo.com" required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="password" class="fh-form-label">Contraseña *</label>
+                        <input type="password" class="form-control fh-form-control" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="confirmPassword" class="fh-form-label">Confirmar Contraseña *</label>
+                        <input type="password" class="form-control fh-form-control" id="confirmPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="fh-form-label">Descripción Breve <span class="text-muted">(Opcional)</span></label>
+                    <textarea class="form-control fh-form-control" id="description" name="description" rows="2" placeholder="Cuéntanos un poco sobre ti..."></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="link" class="fh-form-label">Enlace Externo <span class="text-muted">(Opcional)</span></label>
+                    <input type="url" class="form-control fh-form-control" id="link" name="link" placeholder="https://tu-red-social.com">
+                </div>
+
+                <button type="submit" class="btn-register w-100 py-2 mb-4" style="font-size: 1rem;">Completar Registro</button>
+                
+                <div class="text-center">
+                    <span style="color: var(--fh-muted); font-size: 0.85rem;">¿Ya tienes una cuenta? </span>
+                    <a th:href="@{/login}" style="font-weight: 600; font-size: 0.85rem; color: var(--fh-accent-light); text-decoration: none;">Vuelve a iniciar sesión</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</body>
+</html> 

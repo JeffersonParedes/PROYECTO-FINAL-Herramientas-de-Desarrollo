@@ -336,8 +336,8 @@
     </div>
  
     <div class="nav-actions">
-        <a href="login.html" class="btn-login">Iniciar Sesión</a>
-        <a href="registro.html" class="btn-register">Registrarse</a>
+     <a th:href="@{/login}" class="btn-login">Iniciar Sesión</a>
+    <a th:href="@{/registro}" class="btn-register">Registrarse</a>
     </div>
 </nav>
  
@@ -409,7 +409,7 @@
             <h1>Bienvenido a <span>FalkPlace</span></h1>
             <p>Descubre las publicaciones más valoradas por la comunidad, debate, aprende y conecta.</p>
             <div class="fh-hero-actions">
-                <a href="registro.html" class="btn-register">
+                <a href="@{/registro}" class="btn-register">  
                     <i class="bi bi-person-plus me-1"></i>Únete ahora
                 </a>
                 <a href="#feed" class="btn-login">
