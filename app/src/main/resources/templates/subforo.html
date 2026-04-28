@@ -1,371 +1,70 @@
 ﻿<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Videojuegos | ForoHub</title>
- 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
- 
-    <style>
-        :root {
-            --fh-bg:           #0f1117;
-            --fh-surface:      #1a1d27;
-            --fh-surface-2:    #22263a;
-            --fh-border:       #2e3248;
-            --fh-accent:       #6c63ff;
-            --fh-accent-light: #8b84ff;
-            --fh-amber:        #f59e0b;
-            --fh-danger:       #ef4444;
-            --fh-text:         #e2e5f0;
-            --fh-muted:        #8b8fa8;
-            --navbar-h:        62px;
-            --sidebar-w:       250px;
-        }
-        *, *::before, *::after { box-sizing: border-box; }
-        html, body { height: 100%; margin: 0; }
-        body {
-            background: var(--fh-bg);
-            color: var(--fh-text);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.95rem;
-        }
-        a { color: var(--fh-accent-light); text-decoration: none; }
-        a:hover { color: #fff; }
- 
-        /* ── NAVBAR ── */
-        .fh-navbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: var(--navbar-h);
-            background: var(--fh-surface);
-            border-bottom: 1px solid var(--fh-border);
-            display: flex; align-items: center;
-            padding: 0 1.25rem; gap: 1rem; z-index: 1040;
-        }
-        .fh-logo {
-            font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.25rem;
-            color: #fff; display: flex; align-items: center; gap: .45rem;
-            text-decoration: none; white-space: nowrap;
-        }
-        .fh-logo-icon {
-            width: 32px; height: 32px; background: var(--fh-accent); border-radius: 8px;
-            display: inline-flex; align-items: center; justify-content: center; font-size: 1rem;
-        }
-        .fh-logo span { color: var(--fh-accent); }
-        .fh-search { flex: 1; max-width: 420px; }
-        .fh-search .input-group {
-            background: var(--fh-surface-2); border: 1px solid var(--fh-border);
-            border-radius: 10px; overflow: hidden;
-        }
-        .fh-search .form-control {
-            background: transparent; border: none; color: var(--fh-text); font-size: .875rem;
-        }
-        .fh-search .form-control:focus { box-shadow: none; }
-        .fh-search .form-control::placeholder { color: var(--fh-muted); }
-        .fh-search .btn { background: transparent; border: none; color: var(--fh-muted); }
-        .nav-actions { margin-left: auto; display: flex; gap: .5rem; align-items: center; }
-        .btn-login {
-            border: 1px solid var(--fh-border); background: transparent;
-            color: var(--fh-text); border-radius: 8px; padding: .35rem .85rem; font-size: .85rem;
-        }
-        .btn-login:hover { border-color: var(--fh-accent); color: var(--fh-accent-light); }
-        .btn-register {
-            background: var(--fh-accent); border: none; color: #fff;
-            border-radius: 8px; padding: .35rem .85rem; font-size: .85rem; font-weight: 600;
-        }
-        .btn-register:hover { background: var(--fh-accent-light); color: #fff; }
- 
-        /* ── LAYOUT ── */
-        .fh-layout { display: flex; min-height: 100vh; padding-top: var(--navbar-h); }
- 
-        /* ── SIDEBAR ── */
-        .fh-sidebar {
-            width: var(--sidebar-w); flex-shrink: 0;
-            background: var(--fh-surface); border-right: 1px solid var(--fh-border);
-            position: sticky; top: var(--navbar-h);
-            height: calc(100vh - var(--navbar-h)); overflow-y: auto; padding: 1rem 0;
-        }
-        .fh-sidebar::-webkit-scrollbar { width: 4px; }
-        .fh-sidebar::-webkit-scrollbar-thumb { background: var(--fh-border); border-radius: 2px; }
-        .sidebar-label {
-            font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
-            color: var(--fh-muted); padding: .5rem 1.1rem; margin-top: .25rem;
-        }
-        .sidebar-link {
-            display: flex; align-items: center; gap: .55rem;
-            padding: .45rem 1.1rem; border-radius: 8px;
-            color: var(--fh-muted); font-size: .875rem;
-            margin: 0 .4rem; transition: background .15s, color .15s;
-        }
-        .sidebar-link:hover { background: var(--fh-surface-2); color: var(--fh-text); text-decoration: none; }
-        .sidebar-link.active { background: rgba(108,99,255,.15); color: var(--fh-accent-light); }
-        .acc-btn {
-            width: 100%; background: transparent; border: none;
-            color: var(--fh-muted); font-size: .875rem; padding: .45rem 1.1rem;
-            text-align: left; display: flex; align-items: center; gap: .5rem;
-            cursor: pointer; border-radius: 8px; margin: 0 .4rem; transition: background .15s, color .15s;
-        }
-        .acc-btn:hover { background: var(--fh-surface-2); color: var(--fh-text); }
-        .acc-btn .arrow { margin-left: auto; transition: transform .2s; }
-        .acc-btn.open { background: rgba(108,99,255,.12); color: var(--fh-accent-light); }
-        .acc-btn.open .arrow { transform: rotate(180deg); }
-        .acc-body { padding: 0 .4rem .25rem 1.8rem; display: none; }
-        .acc-body.show { display: block; }
-        .sub-link {
-            display: flex; align-items: center; gap: .45rem;
-            padding: .35rem .75rem; border-radius: 6px;
-            color: var(--fh-muted); font-size: .83rem; transition: background .15s, color .15s;
-        }
-        .sub-link:hover { background: var(--fh-surface-2); color: var(--fh-text); text-decoration: none; }
-        .sub-link.active { color: var(--fh-accent-light); }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fh-accent); flex-shrink: 0; }
- 
-        /* ── MAIN ── */
-        .fh-main { flex: 1; min-width: 0; padding: 1.75rem 1.5rem; }
- 
-        /* ── CABECERA SUBFORO ── */
-        .subforo-header {
-            background: var(--fh-surface); border: 1px solid var(--fh-border);
-            border-radius: 16px; padding: 1.5rem 1.75rem; margin-bottom: 1.5rem;
-            display: flex; align-items: flex-start; justify-content: space-between;
-            gap: 1rem; flex-wrap: wrap;
-        }
-        .subforo-icon {
-            width: 52px; height: 52px; border-radius: 12px;
-            background: linear-gradient(135deg, var(--fh-accent), #9c88ff);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; flex-shrink: 0; color: #fff;
-        }
-        .subforo-name {
-            font-family: 'Sora', sans-serif; font-size: 1.4rem;
-            font-weight: 700; margin: 0 0 .25rem;
-        }
-        .subforo-desc { color: var(--fh-muted); font-size: .9rem; margin: 0; }
-        .subforo-stats { display: flex; gap: 1rem; margin-top: .65rem; flex-wrap: wrap; }
-        .stat { display: flex; align-items: center; gap: .3rem; font-size: .8rem; color: var(--fh-muted); }
-        .stat strong { color: var(--fh-text); font-size: .9rem; }
-        .badge-adult-header {
-            display: inline-flex; align-items: center; gap: .35rem;
-            background: rgba(239,68,68,.15); color: #f87171;
-            border: 1px solid rgba(239,68,68,.3); border-radius: 8px;
-            padding: .3rem .7rem; font-size: .8rem; font-weight: 600;
-        }
- 
-        /* ── ACTION BAR ── */
-        .action-bar {
-            display: flex; align-items: center; justify-content: space-between;
-            gap: .75rem; margin-bottom: 1.1rem; flex-wrap: wrap;
-        }
-        .sort-tabs { display: flex; gap: .35rem; }
-        .sort-btn {
-            background: var(--fh-surface-2); border: 1px solid var(--fh-border);
-            border-radius: 8px; padding: .35rem .8rem; font-size: .82rem;
-            color: var(--fh-muted); cursor: pointer; transition: all .15s; text-decoration: none;
-            display: inline-flex; align-items: center; gap: .3rem;
-        }
-        .sort-btn.active, .sort-btn:hover {
-            border-color: var(--fh-accent); color: var(--fh-accent-light);
-            background: rgba(108,99,255,.12);
-        }
-        .btn-crear {
-            background: var(--fh-accent); border: none; border-radius: 8px;
-            padding: .4rem 1rem; color: #fff; font-weight: 600; font-size: .875rem;
-            display: inline-flex; align-items: center; gap: .4rem; transition: background .2s;
-        }
-        .btn-crear:hover { background: var(--fh-accent-light); color: #fff; }
- 
-        /* ── CARDS ── */
-        .fh-card {
-            background: var(--fh-surface); border: 1px solid var(--fh-border);
-            border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: .8rem;
-            display: flex; gap: 1rem; transition: border-color .2s, transform .15s;
-        }
-        .fh-card:hover { border-color: var(--fh-accent); transform: translateY(-1px); }
-        .score-col {
-            display: flex; flex-direction: column; align-items: center;
-            min-width: 44px; padding-top: .1rem; gap: .2rem;
-        }
-        .score-val { font-family: 'Sora', sans-serif; font-size: 1.1rem; font-weight: 700; line-height: 1; }
-        .score-val.pos { color: #4ade80; }
-        .score-val.neg { color: var(--fh-danger); }
-        .score-val.neu { color: var(--fh-muted); }
-        .score-lbl { font-size: .63rem; color: var(--fh-muted); }
-        .card-body-inner { flex: 1; min-width: 0; }
-        .card-meta { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .3rem; align-items: center; }
-        .badge-adult {
-            background: rgba(239,68,68,.2); color: #f87171; border-radius: 6px;
-            padding: .12rem .5rem; font-size: .71rem; font-weight: 700;
-        }
-        .card-title {
-            font-family: 'Sora', sans-serif; font-size: .97rem; font-weight: 600;
-            color: var(--fh-text); margin-bottom: .25rem;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .card-title a { color: inherit; }
-        .card-title a:hover { color: var(--fh-accent-light); }
-        .card-excerpt {
-            color: var(--fh-muted); font-size: .845rem; margin-bottom: .55rem;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        }
-        .card-foot {
-            display: flex; flex-wrap: wrap; gap: .5rem;
-            font-size: .78rem; color: var(--fh-muted); align-items: center;
-        }
-        .card-foot a { color: var(--fh-muted); }
-        .card-foot a:hover { color: var(--fh-text); }
-        .meta-pill { display: flex; align-items: center; gap: .25rem; }
- 
-        /* ── MURO RESTRINGIDO ── */
-        .fh-restricted {
-            background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(239,68,68,.03));
-            border: 1px solid rgba(239,68,68,.3); border-radius: 14px;
-            padding: 3rem 2rem; text-align: center;
-        }
-        .restricted-icon { font-size: 3rem; color: #f87171; margin-bottom: 1rem; display: block; }
-        .restricted-title {
-            font-family: 'Sora', sans-serif; font-size: 1.2rem;
-            font-weight: 700; color: #f87171; margin-bottom: .5rem;
-        }
-        .restricted-text { color: var(--fh-muted); font-size: .9rem; margin-bottom: 1.25rem; }
- 
-        /* ── EMPTY ── */
-        .fh-empty { text-align: center; padding: 3rem 1rem; color: var(--fh-muted); }
-        .fh-empty i { font-size: 2.5rem; display: block; margin-bottom: .75rem; }
- 
-        @media (max-width: 768px) {
-            .fh-sidebar { display: none; }
-            .fh-main { padding: 1rem; }
-        }
-    </style>
-</head>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<!-- HEAD desde base -->
+<head th:replace="base :: head('Videojuegos | FalkPlace')"></head>
+
 <body>
- 
-<!-- ══════════════ NAVBAR ══════════════ -->
-<nav class="fh-navbar">
-    <a href="index.html" class="fh-logo">
-        <span class="fh-logo-icon"><i class="bi bi-chat-dots-fill"></i></span>
-        Foro<span>Hub</span>
-    </a>
-    <div class="fh-search d-none d-sm-flex">
-        <div class="input-group">
-            <button class="btn"><i class="bi bi-search"></i></button>
-            <input type="search" class="form-control" placeholder="Buscar publicaciones, subforos..."/>
-        </div>
-    </div>
-    <div class="nav-actions">
-        <a href="login.html" class="btn-login">Iniciar Sesión</a>
-        <a href="registro.html" class="btn-register">Registrarse</a>
-    </div>
-</nav>
- 
-<!-- ══════════════ LAYOUT ══════════════ -->
+
+<!-- NAVBAR desde base -->
+<nav th:replace="base :: navbar"></nav>
+
 <div class="fh-layout">
- 
-    <!-- SIDEBAR -->
-    <aside class="fh-sidebar">
-        <p class="sidebar-label">Navegación</p>
-        <a href="index.html" class="sidebar-link">
-            <i class="bi bi-house-door"></i> Inicio
-        </a>
-        <a href="#" class="sidebar-link">
-            <i class="bi bi-fire"></i> Tendencias
-        </a>
- 
-        <p class="sidebar-label">Subforos</p>
- 
-        <button class="acc-btn open" onclick="toggleAcc(this)">
-            <i class="bi bi-controller"></i> Videojuegos
-            <i class="bi bi-chevron-down arrow" style="transform:rotate(180deg)"></i>
-        </button>
-        <div class="acc-body show">
-            <a th:href="@{/subforo}" class="sub-link active"><span class="dot"></span> RPG</a>
-            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> FPS</a>
-            <a th:href="@{/subforo}" class="sub-link"><span class="dot"></span> Indie</a>
-        </div>
- 
-        <button class="acc-btn" onclick="toggleAcc(this)">
-            <i class="bi bi-film"></i> Entretenimiento
-            <i class="bi bi-chevron-down arrow"></i>
-        </button>
-        <div class="acc-body">
-            <a href="#" class="sub-link"><span class="dot"></span> Películas</a>
-            <a href="#" class="sub-link"><span class="dot"></span> Series</a>
-            <a href="#" class="sub-link"><span class="dot"></span> Anime</a>
-        </div>
- 
-        <button class="acc-btn" onclick="toggleAcc(this)">
-            <i class="bi bi-cpu"></i> Tecnología
-            <i class="bi bi-chevron-down arrow"></i>
-        </button>
-        <div class="acc-body">
-            <a href="#" class="sub-link"><span class="dot"></span> Hardware</a>
-            <a href="#" class="sub-link"><span class="dot"></span> Programación</a>
-            <a href="#" class="sub-link"><span class="dot"></span> Móviles</a>
-        </div>
- 
-        <button class="acc-btn" onclick="toggleAcc(this)">
-            <i class="bi bi-music-note-beamed"></i> Música
-            <i class="bi bi-chevron-down arrow"></i>
-        </button>
-        <div class="acc-body">
-            <a href="#" class="sub-link"><span class="dot"></span> Rock</a>
-            <a href="#" class="sub-link"><span class="dot"></span> Electrónica</a>
-            <a href="#" class="sub-link"><span class="dot"></span> Hip-hop</a>
-        </div>
-    </aside>
- 
+
+    <!-- SIDEBAR desde base -->
+    <aside th:replace="base :: sidebar"></aside>
+
     <!-- MAIN -->
     <main class="fh-main">
- 
-        <!-- Cabecera del subforo -->
+
+        <!-- ══════════════ CABECERA SUBFORO ══════════════ -->
         <div class="subforo-header">
             <div class="d-flex align-items-start gap-3 flex-wrap">
-                <div class="subforo-icon"><i class="bi bi-controller"></i></div>
+                <div class="subforo-icon">
+                    <i class="bi bi-controller"></i>
+                </div>
+
                 <div>
                     <h1 class="subforo-name">Videojuegos</h1>
-                    <p class="subforo-desc">Discusiones, análisis, recomendaciones y novedades del mundo de los videojuegos.</p>
+                    <p class="subforo-desc">
+                        Discusiones, análisis, recomendaciones y novedades del mundo de los videojuegos.
+                    </p>
+
                     <div class="subforo-stats">
-                        <span class="stat"><i class="bi bi-file-text"></i><strong>312</strong>&nbsp;publicaciones</span>
-                        <span class="stat"><i class="bi bi-people"></i><strong>84</strong>&nbsp;participantes</span>
+                        <span class="stat">
+                            <i class="bi bi-file-text"></i>
+                            <strong>312</strong>&nbsp;publicaciones
+                        </span>
+                        <span class="stat">
+                            <i class="bi bi-people"></i>
+                            <strong>84</strong>&nbsp;participantes
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
- 
-        <!--
-            ══════════════════════════════════════════════════════
-            DEMO INTERACTIVA: botón para simular el muro +16
-            En la versión real con Spring Boot esto lo controla
-            el backend según si el usuario está autenticado o no.
-            ══════════════════════════════════════════════════════
-        -->
+
+        <!-- ACTION BAR -->
         <div class="mb-3 d-flex align-items-center gap-2">
-            <small class="text-muted">Demo muro +16:</small>
-            <button class="sort-btn" onclick="toggleMuro()">
-                <i class="bi bi-toggle-off" id="muro-icon"></i>
-                <span id="muro-label">Activar restricción</span>
-            </button>
+            <small class="text-muted">Subforo:</small>
+            <span class="badge-subforo">Videojuegos</span>
         </div>
- 
-        <!-- MURO RESTRINGIDO (oculto por defecto, visible si el subforo es +16 y no hay sesión) -->
+
+        <!-- MURO RESTRINGIDO (demo igual que tenías) -->
         <div class="fh-restricted" id="muro-restringido" style="display:none;">
             <i class="bi bi-shield-lock restricted-icon"></i>
             <p class="restricted-title">Contenido restringido</p>
             <p class="restricted-text">
-                Este subforo contiene material para mayores de 16 años.<br/>
-                Inicia sesión para ver las publicaciones.
+                Este subforo contiene material +16. Inicia sesión para ver las publicaciones.
             </p>
-            <a href="login.html" class="btn-crear me-2">
+            <a href="/login" class="btn-crear me-2">
                 <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
             </a>
-            <a href="registro.html" class="btn-login">
+            <a href="/registro" class="btn-login">
                 <i class="bi bi-person-plus"></i> Registrarse
             </a>
         </div>
- 
+
         <!-- CONTENIDO VISIBLE (cuando no hay restricción o el usuario está logueado) -->
         <div id="contenido-subforo">
  
@@ -380,7 +79,7 @@
                 </a>
             </div>
  
-            <!-- Tarjeta 1 -->
+            <!-- Tarjeta 1 (Normal) -->
             <div class="fh-card">
                 <div class="score-col">
                     <span class="score-val pos">87</span>
@@ -402,20 +101,20 @@
                 </div>
             </div>
  
-            <!-- Tarjeta 2 -->
-            <div class="fh-card">
+            <!-- Tarjeta 2 (con +16 - TODA la tarjeta es clickeable) -->
+            <div class="fh-card adult-card" style="cursor:pointer;" data-url="publicacion_adulto.html">
                 <div class="score-col">
                     <span class="score-val pos">54</span>
                     <span class="score-lbl">pts</span>
                 </div>
                 <div class="card-body-inner">
                     <div class="card-meta">
-                        <span class="badge-adult open-adult-modal" style="cursor:pointer;">
-    <i class="bi bi-exclamation-triangle-fill me-1"></i>+16
-</span>
+                        <span class="badge-adult" style="cursor:pointer;">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>+16
+                        </span>
                     </div>
                     <div class="card-title">
-                        <a href="publicacion.html">Los juegos de terror más perturbadores de la última generación</a>
+                        <a href="javascript:void(0)">Los juegos de terror más perturbadores de la última generación</a>
                     </div>
                     <p class="card-excerpt">
                         Contenido para los amantes del horror. Desde Resident Evil Village hasta Amnesia: The Bunker, estos títulos no son para cardíacos...
@@ -428,7 +127,7 @@
                 </div>
             </div>
  
-            <!-- Tarjeta 3 -->
+            <!-- Tarjeta 3 (Normal) -->
             <div class="fh-card">
                 <div class="score-col">
                     <span class="score-val neu">0</span>
@@ -475,23 +174,19 @@
         document.getElementById('muro-label').textContent = muroActivo ? 'Desactivar restricción' : 'Activar restricción';
     }
 </script>
+
 <div class="modal fade" id="adultModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-center p-4" style="border-radius:16px;">
-
             <i class="bi bi-exclamation-triangle-fill mb-3"
                style="font-size:3rem; color:#f59e0b;"></i>
-
             <h5 class="fw-bold">Content Warning</h5>
-
             <p class="text-muted">
                 Este contenido es para mayores de 16 años.
             </p>
-
-            <button class="btn btn-dark" data-bs-dismiss="modal">
+            <button class="btn btn-dark" id="confirmAdultBtn">
                 Entiendo, continuar
             </button>
-
         </div>
     </div>
 </div>
@@ -499,14 +194,48 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
+    // Mostrar modal al hacer clic en badges +16
     const botones = document.querySelectorAll(".open-adult-modal");
-
     botones.forEach(btn => {
-        btn.addEventListener("click", function () {
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
             const modal = new bootstrap.Modal(document.getElementById('adultModal'));
             modal.show();
         });
     });
+
+    // ========== NUEVO: Al hacer clic en cualquier parte de la tarjeta +16 ==========
+    const adultCards = document.querySelectorAll(".adult-card");
+    let pendingUrl = '';
+    
+    adultCards.forEach(card => {
+        card.addEventListener("click", function (e) {
+            // Evitar que se active si hicieron clic en un enlace interno
+            if (e.target.tagName === 'A') {
+                return;
+            }
+            e.preventDefault();
+            pendingUrl = this.getAttribute('data-url') || 'publicacion_adulto.html';
+            
+            const modal = new bootstrap.Modal(document.getElementById('adultModal'));
+            modal.show();
+        });
+    });
+    
+    // Botón de confirmación del modal
+    const confirmBtn = document.getElementById('confirmAdultBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+            if (pendingUrl) {
+                window.location.href = pendingUrl;
+            }
+            const modal = bootstrap.Modal.getInstance(document.getElementById('adultModal'));
+            if (modal) {
+                modal.hide();
+            }
+        });
+    }
 
 });
 </script>
