@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{base :: layout(~{::main-content})}">
+
+    <th:block th:fragment="main-content">
+
+        <h2 class="mb-4">Crear Publicación</h2>
+
+        <div class="card p-4" style="background:#1a1d27; border:1px solid #2e3248; border-radius:12px;">
+
+            <form th:action="@{/crear}" method="post">
+
+                <!-- Título -->
+                <div class="mb-3">
+                    <label class="form-label">Título</label>
+                    <input type="text" name="titulo" class="form-control" required>
+                </div>
+
+                <!-- Subforo -->
+                <div class="mb-3">
+                    <label class="form-label">Subforo</label>
+                    <select name="subforoId" class="form-select">
+                        <option th:each="sub : ${subforos}"
+                                th:value="${sub.id}"
+                                th:text="${sub.nombre}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Contenido -->
+                <div class="mb-3">
+                    <label class="form-label">Contenido</label>
+                    <textarea name="contenido" rows="5" class="form-control" required></textarea>
+                </div>
+
+                <!-- Botón -->
+                <button type="submit" class="btn btn-primary">
+                    Publicar
+                </button>
+
+            </form>
+
+        </div>
+
+    </th:block>
+
+</div>
+</html>
