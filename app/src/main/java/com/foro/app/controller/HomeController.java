@@ -1,5 +1,6 @@
 package com.foro.app.controller;
 
+import com.foro.app.service.SubforoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,12 +9,18 @@ import java.util.List;
 @Controller
 public class HomeController {
 
+    private final SubforoService subforoService;
+
+    public HomeController(SubforoService subforoService) {
+        this.subforoService = subforoService;
+    }
+
    @GetMapping("/index")
     public String index(Model model) {
         model.addAttribute("pageTitle", "Inicio");
-        model.addAttribute("currentPage", "home");
         model.addAttribute("publicaciones", List.of());
         model.addAttribute("subforos", List.of());
+        model.addAttribute("currentPage", "index");
         return "index";
     }
 
@@ -77,6 +84,8 @@ public class HomeController {
     @GetMapping("/crear")
     public String crear(Model model) {
         model.addAttribute("pageTitle", "Crear Publicación");
+        model.addAttribute("subforos", subforoService.obtenerTodosSubforos());
+        model.addAttribute("autorId", 1L);
         return "crear";
     }
 
@@ -91,5 +100,6 @@ public class HomeController {
         model.addAttribute("pageTitle", "Perfil");
         return "perfil";
     }
+    
    
 }  

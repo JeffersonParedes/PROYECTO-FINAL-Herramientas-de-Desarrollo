@@ -1,6 +1,7 @@
 package com.foro.app.dto;
 
 public class UsuarioDTO {
+    private String password;
     private Long id;
     private String nickname;
     private String email;
@@ -52,8 +53,10 @@ public class UsuarioDTO {
     public void setSuspendido(boolean suspendido) {
         this.suspendido = suspendido;
     }
-
-    
-    
-
+    public String getPassword() {
+    return password;
+    }
+public void setPassword(String password) {
+    this.password = password;
+    }
 }

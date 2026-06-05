@@ -2,7 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <!-- HEAD desde base -->
-<head th:replace="base :: head('Publicación | FalkPlace')"></head>
+<head th:replace="base :: head('Publicación | Nexo Foro')"></head>
 
 <body>
 
@@ -80,6 +80,50 @@
 
                 <button class="btn btn-primary">Comentar</button>
             </form>
+
+            <form th:action="@{/reporte}" method="post">
+
+    <input type="hidden"
+           name="usuarioId"
+           value="1">
+
+    <input type="hidden"
+           name="tipoContenido"
+           value="publicacion">
+
+    <input type="hidden"
+           name="contenidoId"
+           th:value="${publicacion.id}">
+
+    <select name="motivo">
+
+        <option value="spam">
+            Spam
+        </option>
+
+        <option value="contenido_ofensivo">
+            Contenido ofensivo
+        </option>
+
+        <option value="contenido_inapropiado">
+            Contenido inapropiado
+        </option>
+
+        <option value="informacion_falsa">
+            Información falsa
+        </option>
+
+        <option value="otros">
+            Otros
+        </option>
+
+    </select>
+
+    <button type="submit">
+        Reportar
+    </button>
+
+</form>
         </div>
 
     </main>
