@@ -11,9 +11,9 @@ public class HomeController {
    @GetMapping("/index")
     public String index(Model model) {
         model.addAttribute("pageTitle", "Inicio");
-        model.addAttribute("currentPage", "home");
         model.addAttribute("publicaciones", List.of());
         model.addAttribute("subforos", List.of());
+        model.addAttribute("currentPage", "index");
         return "index";
     }
 
@@ -91,5 +91,6 @@ public class HomeController {
         model.addAttribute("pageTitle", "Perfil");
         return "perfil";
     }
+    
    
 }  

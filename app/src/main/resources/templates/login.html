@@ -145,10 +145,10 @@
                 Has cerrado sesión exitosamente.
             </div>
 
-            <form th:action="@{/index}" method="GET">
+            <form th:action="@{/login}" method="POST">
                 <div class="mb-3">
                     <label for="username" class="fh-form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control fh-form-control" id="username" name="username" placeholder="ejemplo@correo.com" required autofocus>
+                    <input type="email" class="form-control fh-form-control" id="username" name="email" placeholder="ejemplo@correo.com" required autofocus>
                 </div>
                 
                 <div class="mb-4">
