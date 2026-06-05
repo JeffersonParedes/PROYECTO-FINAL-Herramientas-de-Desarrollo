@@ -135,7 +135,7 @@
                 <p style="color: var(--fh-muted); font-size: 0.9rem;">Únete a la comunidad</p>
             </div>
 
-            <form th:action="@{/login}" method="GET">
+            <form th:action="@{/registro}" method="POST">
                 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
@@ -161,12 +161,12 @@
 
                 <div class="mb-3">
                     <label for="description" class="fh-form-label">Descripción Breve <span class="text-muted">(Opcional)</span></label>
-                    <textarea class="form-control fh-form-control" id="description" name="description" rows="2" placeholder="Cuéntanos un poco sobre ti..."></textarea>
+                    <textarea class="form-control fh-form-control" id="description" name="descripcion" rows="2" placeholder="Cuéntanos un poco sobre ti..."></textarea>
                 </div>
 
                 <div class="mb-4">
                     <label for="link" class="fh-form-label">Enlace Externo <span class="text-muted">(Opcional)</span></label>
-                    <input type="url" class="form-control fh-form-control" id="link" name="link" placeholder="https://tu-red-social.com">
+                    <input type="url" class="form-control fh-form-control" id="link" name="enlace" placeholder="https://tu-red-social.com">
                 </div>
 
                 <button type="submit" class="btn-register w-100 py-2 mb-4" style="font-size: 1rem;">Completar Registro</button>
