@@ -30,8 +30,8 @@ public class PublicacionService {
 
     @Transactional
     public PublicacionDTO crearPublicacion(Long autorId, Long subforoId, String titulo,
-                                           String descripcion, String imagen,
-                                           String video, String audio) {
+                                           String contenido, String descripcion,
+                                           String imagen, String video, String audio) {
         Usuario autor = usuarioRepository.findById(autorId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         if (autor.isSuspendido()) {
@@ -53,7 +53,10 @@ public class PublicacionService {
 
         Publicacion publicacion = new Publicacion();
         publicacion.setTitulo(titulo);
-        publicacion.setDescripcion(descripcion);
+        publicacion.setContenido(contenido);
+        publicacion.setDescripcion((descripcion == null || descripcion.isBlank()) ?
+                (contenido != null && contenido.length() > 200 ? contenido.substring(0, 200) + "..." : contenido)
+                : descripcion);
         publicacion.setAutor(autor);
         publicacion.setSubforo(subforo);
         publicacion.setImagen(imagen);

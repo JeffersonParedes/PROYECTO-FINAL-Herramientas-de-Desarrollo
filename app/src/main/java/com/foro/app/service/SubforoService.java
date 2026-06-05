@@ -146,4 +146,16 @@ public class SubforoService {
 
         return nodo;
     }
+
+    @Transactional(readOnly = true)
+    public List<SubforoDTO> obtenerTodosSubforos() {
+        return subforoRepository.findAll().stream().map(s -> {
+            SubforoDTO dto = new SubforoDTO();
+            dto.setId(s.getId());
+            dto.setNombre(s.getNombre());
+            dto.setDescripcion(s.getDescripcion());
+            dto.setParentId(s.getParent() != null ? s.getParent().getId() : null);
+            return dto;
+        }).collect(Collectors.toList());
+    }
 }

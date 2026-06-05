@@ -49,6 +49,7 @@ public class PublicacionController {
     public String crearPublicacion(@RequestParam Long autorId,
                                    @RequestParam Long subforoId,
                                    @RequestParam String titulo,
+                                   @RequestParam String contenido,
                                    @RequestParam(required = false) String descripcion,
                                    @RequestParam(required = false) String imagen,
                                    @RequestParam(required = false) String video,
@@ -56,7 +57,7 @@ public class PublicacionController {
                                    RedirectAttributes redirectAttributes) {
         try {
             PublicacionDTO dto = publicacionService.crearPublicacion(
-                    autorId, subforoId, titulo, descripcion, imagen, video, audio);
+                    autorId, subforoId, titulo, contenido, descripcion, imagen, video, audio);
             redirectAttributes.addFlashAttribute("mensaje", "Publicación creada");
             return "redirect:/publicacion/" + dto.getId();
         } catch (IllegalArgumentException e) {
