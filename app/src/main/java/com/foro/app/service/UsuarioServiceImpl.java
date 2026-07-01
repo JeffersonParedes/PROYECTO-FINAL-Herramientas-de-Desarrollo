@@ -1,11 +1,18 @@
 package com.foro.app.service;
 
-import com.foro.app.dto.UsuarioDTO;
+import com.foro.app.dto.Request.UsuarioRegisterRequest;
+import com.foro.app.dto.Request.UsuarioUpdateRequest;
+import com.foro.app.dto.Response.UsuarioResponse;
 import com.foro.app.entity.Usuario;
+import com.foro.app.exceptions.BadRequestException;
+import com.foro.app.exceptions.ResourceNotFoundException;
+import com.foro.app.exceptions.SuspendedUserException;
+import com.foro.app.exceptions.UnauthorizedException;
+import com.foro.app.mappers.UsuarioMapper;
 import com.foro.app.repository.UsuarioRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -13,95 +20,90 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private UsuarioMapper usuarioMapper;
+
     @Override
-    public Usuario registrarUsuario(UsuarioDTO dto) {
-
-        if (usuarioRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email ya registrado");
+    @Transactional
+    public UsuarioResponse registrarUsuario(UsuarioRegisterRequest request) {
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            throw new BadRequestException("El correo electrónico ya está registrado.");
         }
 
-        if (usuarioRepository.existsByNickname(dto.getNickname())) {
-            throw new RuntimeException("Nickname ya registrado");
+        if (usuarioRepository.existsByNickname(request.getNickname())) {
+            throw new BadRequestException("El nickname ya está registrado.");
         }
 
-        Usuario usuario = new Usuario();
+        validarEnlace(request.getEnlace());
 
-        usuario.setNickname(dto.getNickname());
-        usuario.setEmail(dto.getEmail());
-        usuario.setPassword(dto.getPassword());
-
-        return usuarioRepository.save(usuario);
+        Usuario usuario = usuarioMapper.toEntity(request);
+        usuario = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(usuario);
     }
 
     @Override
-    public Usuario autenticarUsuario(String email, String password) {
-
-        Usuario usuario = usuarioRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("Usuario no encontrado"));
+    @Transactional(readOnly = true)
+    public UsuarioResponse autenticarUsuario(String email, String password) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con el correo provisto."));
 
         if (!usuario.getPassword().equals(password)) {
-            throw new RuntimeException("Contraseña incorrecta");
+            throw new BadRequestException("Contraseña incorrecta.");
         }
 
         if (usuario.isSuspendido()) {
-            throw new RuntimeException("Cuenta suspendida");
+            throw new SuspendedUserException("Tu cuenta ha sido suspendida. No puedes iniciar sesión.");
         }
 
-        return usuario;
+        return usuarioMapper.toResponse(usuario);
     }
 
     @Override
-    public UsuarioDTO obtenerPerfilPublico(String nickname) {
-
-        Usuario usuario = usuarioRepository
-                .findByNickname(nickname)
-                .orElseThrow(() ->
-                        new RuntimeException("Usuario no encontrado"));
-
-        UsuarioDTO dto = new UsuarioDTO();
-
-        dto.setId(usuario.getId());
-        dto.setNickname(usuario.getNickname());
-        dto.setDescripcion(usuario.getDescripcion());
-        dto.setEnlace(usuario.getEnlace());
-        dto.setRol(usuario.getRol().name());
-
-        return dto;
+    @Transactional(readOnly = true)
+    public UsuarioResponse obtenerPerfilPublico(String nickname) {
+        Usuario usuario = usuarioRepository.findByNickname(nickname)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con el nickname provisto."));
+        return usuarioMapper.toResponse(usuario);
     }
 
     @Override
-    public Usuario actualizarPerfil(Long usuarioId, UsuarioDTO dto) {
+    @Transactional
+    public UsuarioResponse actualizarPerfil(Long usuarioId, UsuarioUpdateRequest request) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
 
-        Usuario usuario = usuarioRepository
-                .findById(usuarioId)
-                .orElseThrow(() ->
-                        new RuntimeException("Usuario no encontrado"));
+        validarEnlace(request.getEnlace());
 
-        usuario.setDescripcion(dto.getDescripcion());
-        usuario.setEnlace(dto.getEnlace());
-
-        return usuarioRepository.save(usuario);
+        usuarioMapper.updateEntity(request, usuario);
+        usuario = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(usuario);
     }
 
     @Override
+    @Transactional
     public void suspenderUsuario(Long idEjecutor, Long idObjetivo) {
-
-        Usuario admin = usuarioRepository
-                .findById(idEjecutor)
-                .orElseThrow();
+        Usuario admin = usuarioRepository.findById(idEjecutor)
+                .orElseThrow(() -> new ResourceNotFoundException("Administrador ejecutor no encontrado."));
 
         if (admin.getRol() != Usuario.Rol.admin) {
-            throw new RuntimeException("No tienes permisos");
+            throw new UnauthorizedException("No tienes permisos para suspender usuarios.");
         }
 
-        Usuario usuario = usuarioRepository
-                .findById(idObjetivo)
-                .orElseThrow();
+        Usuario usuario = usuarioRepository.findById(idObjetivo)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario a suspender no encontrado."));
 
         usuario.setSuspendido(true);
-
         usuarioRepository.save(usuario);
+    }
+
+    private void validarEnlace(String enlace) {
+        if (enlace == null || enlace.isBlank()) {
+            return;
+        }
+        // Simple regex matching common URL formats
+        String urlRegex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$";
+        if (!enlace.matches(urlRegex)) {
+            throw new BadRequestException("El enlace debe ser una dirección URL válida.");
+        }
     }
 }

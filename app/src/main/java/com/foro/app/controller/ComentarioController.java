@@ -1,7 +1,11 @@
 package com.foro.app.controller;
 
-import com.foro.app.dto.ComentarioDTO;
+import com.foro.app.dto.Request.ComentarioCreateRequest;
+import com.foro.app.dto.Response.ComentarioResponse;
+import com.foro.app.dto.Response.UsuarioResponse;
+import com.foro.app.exceptions.UnauthorizedException;
 import com.foro.app.service.ComentarioService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,22 +24,22 @@ public class ComentarioController {
     }
 
     @PostMapping("/agregar")
-    public String agregarComentario(@RequestParam Long autorId,
-                                    @RequestParam Long publicacionId,
-                                    @RequestParam String texto,
-                                    RedirectAttributes redirectAttributes) {
-        try {
-            ComentarioDTO dto = comentarioService.agregarComentario(autorId, publicacionId, texto);
-            redirectAttributes.addFlashAttribute("mensaje", "Comentario agregado");
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+    public String agregarComentario(ComentarioCreateRequest request,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null) {
+            throw new UnauthorizedException("Debes iniciar sesión para comentar.");
         }
-        return "redirect:/publicacion?id=" + publicacionId;
+
+        ComentarioResponse response = comentarioService.agregarComentario(loggedUser.getId(), request);
+        redirectAttributes.addFlashAttribute("mensaje", "Comentario agregado exitosamente.");
+        return "redirect:/publicacion/" + request.getPublicacionId();
     }
 
     @GetMapping("/publicacion/{publicacionId}")
     public String obtenerComentariosPorPublicacion(@PathVariable Long publicacionId, Model model) {
-        List<ComentarioDTO> comentarios = comentarioService.obtenerComentariosPorPublicacion(publicacionId);
+        List<ComentarioResponse> comentarios = comentarioService.obtenerComentariosPorPublicacion(publicacionId);
         model.addAttribute("comentarios", comentarios);
         model.addAttribute("pageTitle", "Comentarios");
         model.addAttribute("currentPage", "comentarios");
@@ -44,15 +48,16 @@ public class ComentarioController {
 
     @PostMapping("/eliminar/{id}")
     public String eliminarComentario(@PathVariable Long id,
-                                     @RequestParam Long usuarioId,
-                                     @RequestParam Long publicacionId,
-                                     RedirectAttributes redirectAttributes) {
-        try {
-            comentarioService.eliminarComentario(usuarioId, id);
-            redirectAttributes.addFlashAttribute("mensaje", "Comentario eliminado");
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            @RequestParam Long publicacionId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null) {
+            throw new UnauthorizedException("Debes iniciar sesión para eliminar comentarios.");
         }
-        return "redirect:/publicacion?id=" + publicacionId;
+
+        comentarioService.eliminarComentario(loggedUser.getId(), id);
+        redirectAttributes.addFlashAttribute("mensaje", "Comentario eliminado.");
+        return "redirect:/publicacion/" + publicacionId;
     }
 }

@@ -1,20 +1,15 @@
 package com.foro.app.service;
 
-import com.foro.app.entity.Reporte;
+import com.foro.app.dto.Request.ReporteRequest;
+import com.foro.app.dto.Response.ReporteResponse;
 
 import java.util.List;
 
 public interface ReporteService {
 
-    Reporte crearReporte(
-            Long usuarioId,
-            String tipoContenido,
-            Long contenidoId,
-            String motivo
-    );
+    ReporteResponse crearReporte(Long usuarioId, ReporteRequest request);
 
-    List<Reporte> obtenerReportes(Long usuarioId);
+    List<ReporteResponse> obtenerReportes(Long usuarioId);
 
-    void eliminarReporte(Long usuarioId,
-                         Long reporteId);
+    void eliminarReporte(Long usuarioId, Long reporteId);
 }

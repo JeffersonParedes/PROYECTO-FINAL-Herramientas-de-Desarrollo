@@ -25,7 +25,7 @@ public class Reporte {
     @Column(name = "contenido_id", nullable = false)
     private Long contenidoId;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = com.foro.app.entity.converter.MotivoReporteConverter.class)
     @Column(nullable = false)
     private MotivoReporte motivo;
 

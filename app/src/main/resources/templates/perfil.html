@@ -2,7 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <!-- HEAD desde base -->
-<head th:replace="base :: head('Perfil | Nexo Foro')"></head>
+<head th:replace="base :: head('Perfil de ' + ${usuarioPerfil.nickname} + ' | Nexo Foro')"></head>
 
 <body>
 
@@ -16,11 +16,93 @@
 
     <!-- MAIN -->
     <main class="fh-main">
-        <div class="container mt-5">
-            <h1>Perfil de Usuario</h1>
-            <p class="text-muted">Esta sección está siendo desarrollada.</p>
-            <a th:href="@{/index}" class="btn btn-primary mt-3">Volver al Inicio</a>
+        
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert" style="background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.3);">
+            <span th:text="${mensaje}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="filter: invert(1);"></button>
         </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3);">
+            <span th:text="${error}">Error</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="filter: invert(1);"></button>
+        </div>
+
+        <div class="card p-4 p-md-5 mb-4" style="background: var(--fh-surface); border: 1px solid var(--fh-border); border-radius: 12px;">
+            <div class="d-flex align-items-center gap-4 flex-wrap mb-4">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--fh-accent); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; color: #fff;" th:text="${#strings.substring(usuarioPerfil.nickname, 0, 1).toUpperCase()}">
+                    U
+                </div>
+                <div>
+                    <h1 class="mb-1" style="font-family: 'Sora', sans-serif; font-weight: 700; font-size: 2rem;">
+                        <span th:text="${usuarioPerfil.nickname}">Nickname</span>
+                        <span th:if="${usuarioPerfil.suspendido}" class="badge bg-danger ms-2" style="font-size:0.8rem;">Suspendido</span>
+                    </h1>
+                    <p class="text-muted mb-0" th:text="'Rol: ' + ${#strings.capitalize(usuarioPerfil.rol)}"></p>
+                    <p class="text-muted" style="font-size: 0.85rem;" th:text="'Miembro desde: ' + ${#temporals.format(usuarioPerfil.fechaRegistro, 'dd MMM yyyy')}"></p>
+                </div>
+            </div>
+
+            <!-- Profile Info Details -->
+            <div class="mb-4">
+                <h5 class="text-light fw-bold mb-2">Descripción</h5>
+                <p class="text-muted" style="font-size: 1.05rem; white-space: pre-line;" 
+                   th:text="${usuarioPerfil.descripcion != null && !usuarioPerfil.descripcion.isEmpty()} ? ${usuarioPerfil.descripcion} : 'Este usuario aún no ha agregado una descripción.'">
+                    Descripción...
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="text-light fw-bold mb-2">Enlace de Contacto / Redes Sociales</h5>
+                <div th:if="${usuarioPerfil.enlace != null && !usuarioPerfil.enlace.isEmpty()}">
+                    <a th:href="${usuarioPerfil.enlace}" target="_blank" class="text-decoration-none fw-bold" style="color: var(--fh-accent-light); font-size:1.05rem;">
+                        <i class="bi bi-link-45deg"></i> <span th:text="${usuarioPerfil.enlace}">Link</span>
+                    </a>
+                </div>
+                <div th:unless="${usuarioPerfil.enlace != null && !usuarioPerfil.enlace.isEmpty()}" class="text-muted italic" style="font-size:0.95rem;">
+                    No hay ningún enlace compartido.
+                </div>
+            </div>
+
+            <!-- Edit profile section if it is current user -->
+            <th:block th:if="${usuarioLogueado && usuario.id == usuarioPerfil.id}">
+                <hr style="border-color: var(--fh-border);" class="my-4" />
+                
+                <h3 class="text-light fw-bold mb-3" style="font-family:'Sora';">Actualizar Perfil</h3>
+                <form th:action="@{/perfil/actualizar}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label text-light fw-bold">Mi Descripción</label>
+                        <textarea name="descripcion" class="form-control fh-form-control" style="background: #22263a; border: 1px solid #2e3248; color: #fff;" rows="3" placeholder="Cuéntanos sobre ti..." th:text="${usuarioPerfil.descripcion}"></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-light fw-bold">Enlace Único (Red Social / Web Personal)</label>
+                        <input type="url" name="enlace" class="form-control fh-form-control" style="background: #22263a; border: 1px solid #2e3248; color: #fff;" placeholder="https://ejemplo.com/tu-perfil" th:value="${usuarioPerfil.enlace}">
+                        <small class="text-muted d-block mt-1">Solo se permite un único enlace externo en tu perfil público.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary px-4 py-2" style="background: var(--fh-accent); border: none;">
+                        <i class="bi bi-save me-1"></i> Guardar Cambios
+                    </button>
+                </form>
+            </th:block>
+
+            <!-- Admin Moderation (Suspend user) -->
+            <th:block th:if="${usuarioLogueado && usuario.rol == 'admin' && usuario.id != usuarioPerfil.id && !usuarioPerfil.suspendido}">
+                <hr style="border-color: var(--fh-border);" class="my-4" />
+                
+                <h3 class="text-danger fw-bold mb-3" style="font-family:'Sora';">Moderación de Administrador</h3>
+                <form th:action="@{/admin/suspender}" method="post">
+                    <input type="hidden" name="usuarioId" th:value="${usuarioPerfil.id}" />
+                    <button type="submit" class="btn btn-danger py-2 px-4" onclick="return confirm('¿Seguro que deseas suspender a este usuario? Esta acción es irreversible.');">
+                        <i class="bi bi-slash-circle me-1"></i> Suspender Cuenta
+                    </button>
+                </form>
+            </th:block>
+        </div>
+
+        <a th:href="@{/index}" class="btn btn-outline-secondary mt-3">
+            <i class="bi bi-arrow-left"></i> Volver al Inicio
+        </a>
+
     </main>
 </div><!-- /fh-layout -->
 

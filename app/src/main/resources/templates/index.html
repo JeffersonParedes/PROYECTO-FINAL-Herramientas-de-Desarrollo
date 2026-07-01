@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <!-- HEAD desde base -->
@@ -14,15 +14,18 @@
     <!-- SIDEBAR desde base -->
     <aside th:replace="base :: sidebar"></aside>
 
-    <!-- MAIN (tu contenido) -->
+    <!-- MAIN -->
     <main class="fh-main">
 
         <!-- Hero -->
         <div class="fh-hero">
             <h1>Bienvenido a <span>Nexo Foro</span></h1>
             <div class="fh-hero-actions">
-                <a th:href="@{/registro}" class="btn-register">
+                <a th:href="@{/registro}" th:unless="${usuarioLogueado}" class="btn-register">
                     <i class="bi bi-person-plus me-1"></i>Únete ahora
+                </a>
+                <a th:href="@{/crear}" th:if="${usuarioLogueado}" class="btn-register">
+                    <i class="bi bi-pencil-square me-1"></i>Crear Publicación
                 </a>
                 <a href="#feed" class="btn-login">
                     <i class="bi bi-arrow-down me-1"></i>Ver publicaciones
@@ -30,207 +33,57 @@
             </div>
         </div>
 
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert" style="background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.3);">
+            <span th:text="${mensaje}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="filter: invert(1);"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3);">
+            <span th:text="${error}">Error</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="filter: invert(1);"></button>
+        </div>
+
         <!-- Feed -->
         <div class="feed-header" id="feed">
             <span class="feed-title">
-                <i class="bi bi-trophy-fill"></i> Top Publicaciones
+                <i class="bi bi-trophy-fill"></i> Publicaciones Recientes
             </span>
-            <small class="text-muted">Ordenadas por puntuación</small>
         </div>
-        <!-- ── TARJETAS DE PUBLICACIÓN (datos de ejemplo) ── -->
- 
-        <!-- Tarjeta 1 -->
-        <div class="fh-card">
+
+        <!-- Tarjetas dinámicas -->
+        <div th:each="pub : ${publicaciones}" class="fh-card">
             <div class="score-col">
-                <span class="score-val pos">248</span>
+                <span class="score-val" 
+                      th:classappend="${pub.puntuacion > 0} ? 'pos' : (${pub.puntuacion < 0} ? 'neg' : 'neu')" 
+                      th:text="${pub.puntuacion > 0} ? '+' + ${pub.puntuacion} : ${pub.puntuacion}">0</span>
                 <span class="score-lbl">pts</span>
             </div>
             <div class="card-body-inner">
                 <div class="card-meta">
-                    <a th:href="@{/subforo}" class="badge-subforo">f/ Videojuegos</a>
+                    <a th:href="@{/subforo/{id}(id=${pub.subforoId})}" class="badge-subforo" th:text="'f/ ' + ${pub.subforoNombre}">badge</a>
                 </div>
                 <div class="card-title">
-                    <a th:href="@{/publicacion}">¿Cuál es el mejor RPG de la última década?</a>
+                    <a th:href="@{/publicacion/{id}(id=${pub.id})}" th:text="${pub.titulo}">Título</a>
                 </div>
-                <p class="card-excerpt">
-                    Llevo semanas pensando en esto y creo que Elden Ring se lleva la corona, pero hay argumentos sólidos para Baldur's Gate 3...
+                <p class="card-excerpt" th:text="${pub.descripcion}">
+                    Descripción corta...
                 </p>
                 <div class="card-foot">
-                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">gamer_pro</a></span>
-                    <span class="meta-pill"><i class="bi bi-chat"></i> 142 comentarios</span>
-                    <span class="meta-pill"><i class="bi bi-clock"></i> 12 abr 2025</span>
+                    <span class="meta-pill"><i class="bi bi-person-circle"></i> <a th:href="@{/perfil/{nick}(nick=${pub.autorNickname})}" th:text="${pub.autorNickname}">Autor</a></span>
+                    <span class="meta-pill"><i class="bi bi-clock"></i> <span th:text="${#temporals.format(pub.fechaCreacion, 'dd MMM yyyy HH:mm')}">Fecha</span></span>
                 </div>
             </div>
         </div>
- 
-        <!-- Tarjeta 2 -->
-        <div class="fh-card">
-            <div class="score-col">
-                <span class="score-val pos">195</span>
-                <span class="score-lbl">pts</span>
-            </div>
-            <div class="card-body-inner">
-                <div class="card-meta">
-                    <a th:href="@{/subforo}" class="badge-subforo">f/ Tecnología</a>
-                </div>
-                <div class="card-title">
-                    <a th:href="@{/publicacion}">Por qué cambié de Windows a Linux y no me arrepiento</a>
-                </div>
-                <p class="card-excerpt">
-                    Después de 15 años usando Windows, decidí dar el salto. Aquí mi experiencia tras 6 meses usando Arch Linux en mi trabajo diario...
-                </p>
-                <div class="card-foot">
-                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">linuxero42</a></span>
-                    <span class="meta-pill"><i class="bi bi-chat"></i> 89 comentarios</span>
-                    <span class="meta-pill"><i class="bi bi-clock"></i> 10 abr 2025</span>
-                </div>
-            </div>
+        <div th:if="${#lists.isEmpty(publicaciones)}" class="text-center py-5 text-muted">
+            <i class="bi bi-chat-left-dots" style="font-size: 3rem;"></i>
+            <p class="mt-3">No hay publicaciones disponibles todavía.</p>
         </div>
- 
-       <!-- Tarjeta 3 — con badge +16 (TODA la tarjeta clickeable) -->
-<div class="fh-card adult-card" style="cursor:pointer;" data-url="publicacion_adulto.html">
-    <div class="score-col">
-        <span class="score-val pos">133</span>
-        <span class="score-lbl">pts</span>
-    </div>
-    <div class="card-body-inner">
-        <div class="card-meta">
-            <a th:href="@{/subforo}" class="badge-subforo">f/ Entretenimiento</a>
-            <span class="badge-adult open-adult-modal"><i class="bi bi-exclamation-triangle-fill me-1"></i>+16</span>
-        </div>
-        <div class="card-title">
-            <a href="javascript:void(0)">Las mejores series de thriller psicológico — lista actualizada</a>
-        </div>
-        <p class="card-excerpt">
-            Compilé una lista con más de 30 series de thriller psicológico ordenadas por intensidad y calidad narrativa...
-        </p>
-        <div class="card-foot">
-            <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">cinefilo_x</a></span>
-            <span class="meta-pill"><i class="bi bi-chat"></i> 57 comentarios</span>
-            <span class="meta-pill"><i class="bi bi-clock"></i> 08 abr 2025</span>
-        </div>
-    </div>
-</div>
- 
-        <!-- Tarjeta 4 -->
-        <div class="fh-card">
-            <div class="score-col">
-                <span class="score-val pos">98</span>
-                <span class="score-lbl">pts</span>
-            </div>
-            <div class="card-body-inner">
-                <div class="card-meta">
-                    <a th:href="@{/subforo}" class="badge-subforo">f/ Música</a>
-                </div>
-                <div class="card-title">
-                    <a th:href="@{/publicacion}">Álbumes imprescindibles del rock progresivo que debes escuchar</a>
-                </div>
-                <p class="card-excerpt">
-                    Pink Floyd, Yes, Genesis, King Crimson... una guía para iniciarse en el rock progresivo sin perderse en el camino.
-                </p>
-                <div class="card-foot">
-                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">prog_rocks</a></span>
-                    <span class="meta-pill"><i class="bi bi-chat"></i> 43 comentarios</span>
-                    <span class="meta-pill"><i class="bi bi-clock"></i> 05 abr 2025</span>
-                </div>
-            </div>
-        </div>
- 
-        <!-- Tarjeta 5 — puntuación negativa -->
-        <div class="fh-card">
-            <div class="score-col">
-                <span class="score-val neg">-12</span>
-                <span class="score-lbl">pts</span>
-            </div>
-            <div class="card-body-inner">
-                <div class="card-meta">
-                    <a th:href="@{/subforo}" class="badge-subforo">f/ Tecnología</a>
-                </div>
-                <div class="card-title">
-                    <a th:href="@{/publicacion}">Las IAs van a reemplazar todos los empleos para 2026</a>
-                </div>
-                <p class="card-excerpt">
-                    Opinión controversial sobre el impacto de la inteligencia artificial en el mercado laboral global...
-                </p>
-                <div class="card-foot">
-                    <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">apocalipsis_tech</a></span>
-                    <span class="meta-pill"><i class="bi bi-chat"></i> 201 comentarios</span>
-                    <span class="meta-pill"><i class="bi bi-clock"></i> 03 abr 2025</span>
-                </div>
-            </div>
-        </div>
- 
+
     </main>
 </div><!-- /fh-layout -->
- 
+
 <!-- SCRIPTS desde base -->
 <div th:replace="base :: scripts"></div>
 
-<!-- MODAL DE ADVERTENCIA +16 -->
-<div class="modal fade" id="adultModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content text-center p-4" style="border-radius:16px;">
-            <i class="bi bi-exclamation-triangle-fill mb-3"
-               style="font-size:3rem; color:#f59e0b;"></i>
-            <h5 class="fw-bold">Content Warning</h5>
-            <p class="text-muted">
-                Este contenido es para mayores de 16 años.
-            </p>
-            <button class="btn btn-dark" id="confirmAdultBtn">
-                Entiendo, continuar
-            </button>
-        </div>
-    </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Función para el modal de contenido +16 en el index
-    document.addEventListener("DOMContentLoaded", function () {
-        
-        const botones = document.querySelectorAll(".open-adult-modal");
-        botones.forEach(btn => {
-            btn.addEventListener("click", function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const modal = new bootstrap.Modal(document.getElementById('adultModal'));
-                modal.show();
-            });
-        });
-
-        const adultCards = document.querySelectorAll(".adult-card");
-        let pendingUrl = '';
-        
-        adultCards.forEach(card => {
-            card.addEventListener("click", function (e) {
-                if (e.target.closest('.open-adult-modal')) {
-                    return;
-                }
-                if (e.target.tagName === 'A' && !e.target.closest('.open-adult-modal')) {
-                    return;
-                }
-                e.preventDefault();
-                pendingUrl = this.getAttribute('data-url') || 'publicacion_adulto.html';
-                
-                const modal = new bootstrap.Modal(document.getElementById('adultModal'));
-                modal.show();
-            });
-        });
-        
-        const confirmBtn = document.getElementById('confirmAdultBtn');
-        if (confirmBtn) {
-            confirmBtn.addEventListener('click', function() {
-                if (pendingUrl) {
-                    window.location.href = pendingUrl;
-                }
-                const modal = bootstrap.Modal.getInstance(document.getElementById('adultModal'));
-                if (modal) {
-                    modal.hide();
-                }
-            });
-        }
-    });
-</script>
 </body>
 </html>
-

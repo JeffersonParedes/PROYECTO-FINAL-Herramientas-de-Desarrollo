@@ -1,9 +1,13 @@
 package com.foro.app.service;
 
+import com.foro.app.dto.Request.ReaccionRequest;
 import com.foro.app.entity.Publicacion;
 import com.foro.app.entity.Reaccion;
 import com.foro.app.entity.Reaccion.TipoReaccion;
 import com.foro.app.entity.Usuario;
+import com.foro.app.exceptions.BadRequestException;
+import com.foro.app.exceptions.ResourceNotFoundException;
+import com.foro.app.exceptions.SuspendedUserException;
 import com.foro.app.repository.PublicacionRepository;
 import com.foro.app.repository.ReaccionRepository;
 import com.foro.app.repository.UsuarioRepository;
@@ -21,9 +25,9 @@ public class ReaccionService {
     private final UsuarioRepository usuarioRepository;
 
     public ReaccionService(ReaccionRepository reaccionRepository,
-                           PublicacionRepository publicacionRepository,
-                           PublicacionService publicacionService,
-                           UsuarioRepository usuarioRepository) {
+            PublicacionRepository publicacionRepository,
+            PublicacionService publicacionService,
+            UsuarioRepository usuarioRepository) {
         this.reaccionRepository = reaccionRepository;
         this.publicacionRepository = publicacionRepository;
         this.publicacionService = publicacionService;
@@ -31,35 +35,44 @@ public class ReaccionService {
     }
 
     @Transactional
-    public void procesarReaccion(Long usuarioId, Long publicacionId, String tipoEmoji) {
+    public void procesarReaccion(Long usuarioId, ReaccionRequest request) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
+
         if (usuario.isSuspendido()) {
-            throw new IllegalArgumentException("Cuenta suspendida");
+            throw new SuspendedUserException("Cuenta suspendida. No puedes reaccionar.");
         }
-        Publicacion publicacion = publicacionRepository.findById(publicacionId)
-                .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
+
+        Publicacion publicacion = publicacionRepository.findById(request.getPublicacionId())
+                .orElseThrow(() -> new ResourceNotFoundException("Publicación no encontrada."));
 
         TipoReaccion nuevoTipo;
         try {
-            nuevoTipo = TipoReaccion.valueOf(tipoEmoji.toLowerCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Tipo de reacción inválido: " + tipoEmoji);
+            nuevoTipo = TipoReaccion.valueOf(request.getTipo().toLowerCase());
+        } catch (Exception e) {
+            throw new BadRequestException("Tipo de reacción inválido: " + request.getTipo());
         }
 
         Optional<Reaccion> reaccionExistente = reaccionRepository
-                .findByPublicacionIdAndUsuarioId(publicacionId, usuarioId);
+                .findByPublicacionIdAndUsuarioId(request.getPublicacionId(), usuarioId);
 
         if (reaccionExistente.isPresent()) {
             Reaccion reaccion = reaccionExistente.get();
-            reaccion.setTipo(nuevoTipo);
-            reaccionRepository.save(reaccion);
+            // If user clicks the exact same reaction, remove it (toggle behavior)
+            if (reaccion.getTipo() == nuevoTipo) {
+                reaccionRepository.delete(reaccion);
+            } else {
+                reaccion.setTipo(nuevoTipo);
+                reaccionRepository.save(reaccion);
+            }
         } else {
-            long tiposDistintos = reaccionRepository.countDistinctTipoByPublicacionId(publicacionId);
-            boolean tipoYaExiste = reaccionRepository.countByPublicacionIdAndTipo(publicacionId, nuevoTipo) > 0;
+            long tiposDistintos = reaccionRepository.countDistinctTipoByPublicacionId(request.getPublicacionId());
+            boolean tipoYaExiste = reaccionRepository.countByPublicacionIdAndTipo(request.getPublicacionId(),
+                    nuevoTipo) > 0;
 
             if (tiposDistintos >= 4 && !tipoYaExiste) {
-                throw new IllegalArgumentException("Límite de tipos de reacción alcanzado");
+                throw new BadRequestException(
+                        "Límite de tipos de reacción alcanzado (máximo 4 emojis distintos por publicación).");
             }
 
             Reaccion nuevaReaccion = new Reaccion();
@@ -69,7 +82,7 @@ public class ReaccionService {
             reaccionRepository.save(nuevaReaccion);
         }
 
-        calcularPredominancia(publicacionId);
+        calcularPredominancia(request.getPublicacionId());
     }
 
     @Transactional
@@ -80,14 +93,13 @@ public class ReaccionService {
         long votosNegativos = reaccionRepository.countByPublicacionIdAndTipo(publicacionId, TipoReaccion.negativo)
                 + reaccionRepository.countByPublicacionIdAndTipo(publicacionId, TipoReaccion.sorpresa);
 
-        long total = votosPositivos + votosNegativos;
         int nuevoEstado;
-
-        if (total == 0) {
-            nuevoEstado = 0;
+        if (votosPositivos > votosNegativos) {
+            nuevoEstado = 2;
+        } else if (votosNegativos > votosPositivos) {
+            nuevoEstado = -2;
         } else {
-            double porcentajePositivo = (double) votosPositivos / total * 100;
-            nuevoEstado = porcentajePositivo > 50 ? 2 : -2;
+            nuevoEstado = 0;
         }
 
         publicacionService.actualizarEstadoPredominante(publicacionId, nuevoEstado);

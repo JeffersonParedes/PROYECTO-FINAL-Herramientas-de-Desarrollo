@@ -1,10 +1,13 @@
 package com.foro.app.controller;
 
+import com.foro.app.dto.Request.ReaccionRequest;
+import com.foro.app.dto.Response.UsuarioResponse;
+import com.foro.app.exceptions.UnauthorizedException;
 import com.foro.app.service.ReaccionService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -18,16 +21,16 @@ public class ReaccionController {
     }
 
     @PostMapping("/procesar")
-    public String procesarReaccion(@RequestParam Long usuarioId,
-                                   @RequestParam Long publicacionId,
-                                   @RequestParam String tipo,
-                                   RedirectAttributes redirectAttributes) {
-        try {
-            reaccionService.procesarReaccion(usuarioId, publicacionId, tipo);
-            redirectAttributes.addFlashAttribute("mensaje", "Reacción registrada");
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+    public String procesarReaccion(ReaccionRequest request,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null) {
+            throw new UnauthorizedException("Debes iniciar sesión para reaccionar.");
         }
-        return "redirect:/publicacion?id=" + publicacionId;
+
+        reaccionService.procesarReaccion(loggedUser.getId(), request);
+        redirectAttributes.addFlashAttribute("mensaje", "Reacción procesada.");
+        return "redirect:/publicacion/" + request.getPublicacionId();
     }
 }

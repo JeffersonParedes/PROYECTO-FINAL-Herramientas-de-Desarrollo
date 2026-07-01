@@ -1,8 +1,12 @@
 package com.foro.app.controller;
 
-import com.foro.app.dto.SubforoDTO;
-import com.foro.app.dto.SubforoJerarquiaDTO;
+import com.foro.app.dto.Request.SubforoCreateRequest;
+import com.foro.app.dto.Response.SubforoJerarquiaResponse;
+import com.foro.app.dto.Response.SubforoResponse;
+import com.foro.app.dto.Response.UsuarioResponse;
+import com.foro.app.exceptions.UnauthorizedException;
 import com.foro.app.service.SubforoService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,14 +30,14 @@ public class SubforoController {
         Map<String, Object> detalle = subforoService.obtenerDetalleSubforo(id);
         model.addAttribute("subforo", detalle.get("subforo"));
         model.addAttribute("breadcrumbs", detalle.get("breadcrumbs"));
-        model.addAttribute("pageTitle", ((SubforoDTO) detalle.get("subforo")).getNombre());
+        model.addAttribute("pageTitle", ((SubforoResponse) detalle.get("subforo")).getNombre());
         model.addAttribute("currentPage", "subforo");
         return "subforo";
     }
 
     @GetMapping("/jerarquia")
     public String obtenerJerarquiaCompleta(Model model) {
-        List<SubforoJerarquiaDTO> arbol = subforoService.obtenerJerarquiaCompleta();
+        List<SubforoJerarquiaResponse> arbol = subforoService.obtenerJerarquiaCompleta();
         model.addAttribute("subforosPrincipales", arbol);
         model.addAttribute("pageTitle", "Foros");
         model.addAttribute("currentPage", "jerarquia");
@@ -41,18 +45,16 @@ public class SubforoController {
     }
 
     @PostMapping("/crear")
-    public String crearSubforo(@RequestParam String nombre,
-                               @RequestParam(required = false) String descripcion,
-                               @RequestParam(required = false) Long parentId,
-                               @RequestParam Long ejecutorId,
-                               RedirectAttributes redirectAttributes) {
-        try {
-            SubforoDTO dto = subforoService.crearSubforo(nombre, descripcion, parentId, ejecutorId);
-            redirectAttributes.addFlashAttribute("mensaje", "Foro '" + dto.getNombre() + "' creado");
-            return "redirect:/subforo/" + dto.getId();
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin";
+    public String crearSubforo(SubforoCreateRequest request,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null || !"admin".equalsIgnoreCase(loggedUser.getRol())) {
+            throw new UnauthorizedException("Acceso denegado. Se requiere cuenta de administrador.");
         }
+
+        SubforoResponse response = subforoService.crearSubforo(request, loggedUser.getId());
+        redirectAttributes.addFlashAttribute("mensaje", "Subforo '" + response.getNombre() + "' creado con éxito.");
+        return "redirect:/subforo/" + response.getId();
     }
 }
