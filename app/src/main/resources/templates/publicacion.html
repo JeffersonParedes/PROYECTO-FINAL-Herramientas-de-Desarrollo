@@ -2,136 +2,238 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <!-- HEAD desde base -->
-<head th:replace="base :: head('Publicación | Nexo Foro')"></head>
+
+<head th:replace="base :: head(${publicacion.titulo} + ' | Nexo Foro')"></head>
 
 <body>
 
-<!-- NAVBAR desde base -->
-<nav th:replace="base :: navbar"></nav>
+    <!-- NAVBAR desde base -->
+    <nav th:replace="base :: navbar"></nav>
 
-<div class="fh-layout">
+    <div class="fh-layout">
 
-    <!-- SIDEBAR desde base -->
-    <aside th:replace="base :: sidebar"></aside>
+        <!-- SIDEBAR desde base -->
+        <aside th:replace="base :: sidebar"></aside>
 
-    <!-- MAIN -->
-    <main class="fh-main">
+        <!-- MAIN -->
+        <main class="fh-main">
 
-        <!-- Publicación -->
-        <div class="fh-card">
+            <!-- Notificaciones de éxito/error -->
+            <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert"
+                style="background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.3);">
+                <span th:text="${mensaje}">Mensaje</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                    style="filter: invert(1);"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert"
+                style="background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3);">
+                <span th:text="${error}">Error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                    style="filter: invert(1);"></button>
+            </div>
 
-            <div class="card-body-inner">
+            <!-- Publicación -->
+            <div class="fh-card">
 
-                <div class="card-meta">
-                    <span class="badge-subforo"
-                          th:text="${publicacion.subforo.nombre}">
-                        Subforo
-                    </span>
-                </div>
+                <div class="card-body-inner">
 
-                <h3 class="card-title"
-                    th:text="${publicacion.titulo}">
-                    Título
-                </h3>
+                    <div class="card-meta mb-2">
+                        <a th:href="@{/subforo/{id}(id=${publicacion.subforoId})}" class="badge-subforo"
+                            th:text="'f/ ' + ${publicacion.subforoNombre}">
+                            Subforo
+                        </a>
+                    </div>
 
-                <p class="card-excerpt"
-                   th:text="${publicacion.contenido}">
-                    Contenido
-                </p>
+                    <h3 class="card-title mb-3" th:text="${publicacion.titulo}">
+                        Título
+                    </h3>
 
-                <div class="card-foot">
-                    <span>
-                        <i class="bi bi-person-circle"></i>
-                        <span th:text="${publicacion.autor}"></span>
-                    </span>
+                    <!-- Multimedia rendering if present -->
+                    <div class="multimedia-container my-3"
+                        style="max-width: 100%; border-radius: 8px; overflow: hidden; background: #000; display: inline-block;">
+                        <!-- Imagen -->
+                        <div th:if="${publicacion.imagen != null && !publicacion.imagen.isEmpty()}">
+                            <img th:src="${publicacion.imagen}" alt="Imagen de publicación"
+                                style="max-width: 100%; max-height: 500px; object-fit: contain; display: block; margin: auto;" />
+                        </div>
+                        <!-- Video -->
+                        <div th:if="${publicacion.video != null && !publicacion.video.isEmpty()}" class="p-1">
+                            <video th:src="${publicacion.video}" controls
+                                style="max-width: 100%; max-height: 500px; display: block; margin: auto;"></video>
+                        </div>
+                        <!-- Audio -->
+                        <div th:if="${publicacion.audio != null && !publicacion.audio.isEmpty()}" class="p-2 bg-dark">
+                            <audio th:src="${publicacion.audio}" controls
+                                style="width: 100%; max-width: 400px; display: block; margin: auto;"></audio>
+                        </div>
+                    </div>
 
-                    <span>
-                        <i class="bi bi-clock"></i>
-                        <span th:text="${publicacion.fecha}"></span>
-                    </span>
+                    <!-- Contenido -->
+                    <p class="card-excerpt mt-3" style="font-size: 1.1rem; line-height: 1.6; white-space: pre-line;"
+                        th:text="${publicacion.contenido}">
+                        Contenido
+                    </p>
+
+                    <div class="card-foot mt-4">
+                        <span>
+                            <i class="bi bi-person-circle"></i>
+                            <a th:href="@{/perfil/{nick}(nick=${publicacion.autorNickname})}"
+                                th:text="${publicacion.autorNickname}">Autor</a>
+                        </span>
+
+                        <span>
+                            <i class="bi bi-clock"></i>
+                            <span
+                                th:text="${#temporals.format(publicacion.fechaCreacion, 'dd MMM yyyy HH:mm')}">Fecha</span>
+                        </span>
+                    </div>
+
                 </div>
 
             </div>
 
-        </div>
-            <!-- O_O -->
-        <!-- Comentarios -->
-        <h5 class="mt-4">Comentarios</h5>
+            <!-- Emojis and Score Section -->
+            <div class="my-4 p-3 d-flex align-items-center justify-content-between rounded flex-wrap gap-3"
+                style="background:#1a1d27; border:1px solid #2e3248;">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="text-muted me-2" style="font-size:0.9rem;">Reaccionar:</span>
 
-        <div th:each="comentario : ${comentarios}" class="fh-card">
-            <div class="card-body-inner">
-                <p th:text="${comentario.contenido}"></p>
-                <small class="text-muted"
-                       th:text="${comentario.autor}">
-                </small>
+                    <form th:action="@{/reaccion/procesar}" method="post" style="display:inline;">
+                        <input type="hidden" name="publicacionId" th:value="${publicacion.id}">
+                        <input type="hidden" name="tipo" value="positivo">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm" th:disabled="${!usuarioLogueado}"
+                            title="Positivo">
+                            👍 Positivo
+                        </button>
+                    </form>
+
+                    <form th:action="@{/reaccion/procesar}" method="post" style="display:inline;">
+                        <input type="hidden" name="publicacionId" th:value="${publicacion.id}">
+                        <input type="hidden" name="tipo" value="negativo">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm" th:disabled="${!usuarioLogueado}"
+                            title="Negativo">
+                            👎 Negativo
+                        </button>
+                    </form>
+
+                    <form th:action="@{/reaccion/procesar}" method="post" style="display:inline;">
+                        <input type="hidden" name="publicacionId" th:value="${publicacion.id}">
+                        <input type="hidden" name="tipo" value="risa">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm" th:disabled="${!usuarioLogueado}"
+                            title="Risa">
+                            😄 Risa
+                        </button>
+                    </form>
+
+                    <form th:action="@{/reaccion/procesar}" method="post" style="display:inline;">
+                        <input type="hidden" name="publicacionId" th:value="${publicacion.id}">
+                        <input type="hidden" name="tipo" value="sorpresa">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm" th:disabled="${!usuarioLogueado}"
+                            title="Sorpresa">
+                            😮 Sorpresa
+                        </button>
+                    </form>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted" style="font-size:0.9rem;">Puntuación:</span>
+                    <span th:if="${publicacion.puntuacion == 2}" class="badge bg-success p-2"
+                        style="font-size: 0.9rem;">
+                        <i class="bi bi-plus-circle-fill me-1"></i> Positivo (+2)
+                    </span>
+                    <span th:if="${publicacion.puntuacion == -2}" class="badge bg-danger p-2"
+                        style="font-size: 0.9rem;">
+                        <i class="bi bi-dash-circle-fill me-1"></i> Negativo (-2)
+                    </span>
+                    <span th:if="${publicacion.puntuacion == 0}" class="badge bg-secondary p-2"
+                        style="font-size: 0.9rem;">
+                        Neutro (0)
+                    </span>
+                </div>
             </div>
-        </div>
 
-        <!-- Nuevo comentario -->
-        <div class="mt-4">
-            <form th:action="@{/comentar}" method="post">
-                <input type="hidden" name="publicacionId"
-                       th:value="${publicacion.id}"/>
+            <!-- Comentarios -->
+            <h5 class="mt-4 mb-3">Comentarios</h5>
 
-                <textarea name="contenido"
-                          class="form-control mb-2"
-                          placeholder="Escribe un comentario..."
-                          required></textarea>
+            <div th:each="comentario : ${comentarios}" class="fh-card mb-2"
+                style="background:#1a1d27; border: 1px solid #2e3248; border-radius:8px;">
+                <div class="card-body-inner p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1 text-light" th:text="${comentario.texto}"></p>
+                        <small class="text-muted">
+                            Por <a th:href="@{/perfil/{nick}(nick=${comentario.autorNickname})}"
+                                class="fw-bold text-decoration-none" style="color: var(--fh-accent-light);"
+                                th:text="${comentario.autorNickname}">Nickname</a> en <span
+                                th:text="${#temporals.format(comentario.fecha, 'dd MMM yyyy HH:mm')}">Fecha</span>
+                        </small>
+                    </div>
+                    <!-- Delete comment button if user is comment author or admin -->
+                    <div th:if="${usuarioLogueado && (usuario.id == comentario.autorId || usuario.rol == 'admin')}">
+                        <form th:action="@{/comentario/eliminar/{id}(id=${comentario.id})}" method="post"
+                            style="display:inline;">
+                            <input type="hidden" name="publicacionId" th:value="${publicacion.id}" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar Comentario"
+                                onclick="return confirm('¿Seguro que deseas eliminar este comentario?');">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(comentarios)}" class="text-muted py-3 text-center" style="font-size: 0.9rem;">
+                No hay comentarios en esta publicación. ¡Escribe el primero!
+            </div>
 
-                <button class="btn btn-primary">Comentar</button>
-            </form>
+            <!-- Nuevo comentario / Reporte -->
+            <div class="mt-4 p-4 rounded" style="background:#1a1d27; border:1px solid #2e3248;">
+                <th:block th:if="${usuarioLogueado}">
+                    <form th:action="@{/comentario/agregar}" method="post" class="mb-4">
+                        <input type="hidden" name="publicacionId" th:value="${publicacion.id}" />
+                        <label class="form-label text-light fw-bold">Escribir un comentario</label>
+                        <textarea name="texto" class="form-control mb-2 fh-form-control"
+                            style="background: #22263a; border: 1px solid #2e3248; color: #fff;"
+                            placeholder="Escribe tu comentario aquí..." required></textarea>
+                        <button class="btn btn-primary"
+                            style="background: var(--fh-accent); border: none;">Comentar</button>
+                    </form>
 
-            <form th:action="@{/reporte}" method="post">
+                    <hr style="border-color: #2e3248;" />
 
-    <input type="hidden"
-           name="usuarioId"
-           value="1">
+                    <form th:action="@{/reporte}" method="post" class="d-flex align-items-center gap-3 flex-wrap">
+                        <input type="hidden" name="tipoContenido" value="publicacion">
+                        <input type="hidden" name="contenidoId" th:value="${publicacion.id}">
 
-    <input type="hidden"
-           name="tipoContenido"
-           value="publicacion">
+                        <span class="text-light fw-bold">Reportar esta publicación:</span>
 
-    <input type="hidden"
-           name="contenidoId"
-           th:value="${publicacion.id}">
+                        <select name="motivo" class="form-select w-auto"
+                            style="background: #22263a; border: 1px solid #2e3248; color: #fff;" required>
+                            <option value="spam">Spam</option>
+                            <option value="contenido_ofensivo">Contenido ofensivo</option>
+                            <option value="contenido_inapropiado">Contenido inapropiado</option>
+                            <option value="informacion_falsa">Información falsa</option>
+                            <option value="otros">Otros</option>
+                        </select>
 
-    <select name="motivo">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-flag"></i> Reportar
+                        </button>
+                    </form>
+                </th:block>
+                <th:block th:unless="${usuarioLogueado}">
+                    <p class="text-muted text-center mb-0">
+                        Debes <a th:href="@{/login}" class="fw-bold" style="color: var(--fh-accent-light);">iniciar
+                            sesión</a> para comentar o reportar esta publicación.
+                    </p>
+                </th:block>
+            </div>
 
-        <option value="spam">
-            Spam
-        </option>
+        </main>
+    </div><!-- /fh-layout -->
 
-        <option value="contenido_ofensivo">
-            Contenido ofensivo
-        </option>
+    <!-- SCRIPTS desde base -->
+    <div th:replace="base :: scripts"></div>
 
-        <option value="contenido_inapropiado">
-            Contenido inapropiado
-        </option>
-
-        <option value="informacion_falsa">
-            Información falsa
-        </option>
-
-        <option value="otros">
-            Otros
-        </option>
-
-    </select>
-
-    <button type="submit">
-        Reportar
-    </button>
-
-</form>
-        </div>
-
-    </main>
-</div><!-- /fh-layout -->
-
-<!-- SCRIPTS desde base -->
-<div th:replace="base :: scripts"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

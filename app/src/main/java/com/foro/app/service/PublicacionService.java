@@ -1,9 +1,14 @@
 package com.foro.app.service;
 
-import com.foro.app.dto.PublicacionDTO;
+import com.foro.app.dto.Request.PublicacionCreateRequest;
+import com.foro.app.dto.Response.PublicacionResponse;
 import com.foro.app.entity.Publicacion;
 import com.foro.app.entity.Subforo;
 import com.foro.app.entity.Usuario;
+import com.foro.app.exceptions.BadRequestException;
+import com.foro.app.exceptions.ResourceNotFoundException;
+import com.foro.app.exceptions.SuspendedUserException;
+import com.foro.app.mappers.PublicacionMapper;
 import com.foro.app.repository.PublicacionRepository;
 import com.foro.app.repository.SubforoRepository;
 import com.foro.app.repository.UsuarioRepository;
@@ -19,119 +24,88 @@ public class PublicacionService {
     private final PublicacionRepository publicacionRepository;
     private final UsuarioRepository usuarioRepository;
     private final SubforoRepository subforoRepository;
+    private final PublicacionMapper publicacionMapper;
+    private final MultimediaStorageService multimediaStorageService;
 
     public PublicacionService(PublicacionRepository publicacionRepository,
-                              UsuarioRepository usuarioRepository,
-                              SubforoRepository subforoRepository) {
+            UsuarioRepository usuarioRepository,
+            SubforoRepository subforoRepository,
+            PublicacionMapper publicacionMapper,
+            MultimediaStorageService multimediaStorageService) {
         this.publicacionRepository = publicacionRepository;
         this.usuarioRepository = usuarioRepository;
         this.subforoRepository = subforoRepository;
+        this.publicacionMapper = publicacionMapper;
+        this.multimediaStorageService = multimediaStorageService;
     }
 
     @Transactional
-    public PublicacionDTO crearPublicacion(Long autorId, Long subforoId, String titulo,
-                                           String contenido, String descripcion,
-                                           String imagen, String video, String audio) {
+    public PublicacionResponse crearPublicacion(Long autorId, PublicacionCreateRequest request) {
         Usuario autor = usuarioRepository.findById(autorId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
+
         if (autor.isSuspendido()) {
-            throw new IllegalArgumentException("Cuenta suspendida");
+            throw new SuspendedUserException("Cuenta suspendida. No puedes crear publicaciones.");
         }
 
-        Subforo subforo = subforoRepository.findById(subforoId)
-                .orElseThrow(() -> new IllegalArgumentException("El subforo no existe"));
+        Subforo subforo = subforoRepository.findById(request.getSubforoId())
+                .orElseThrow(() -> new ResourceNotFoundException("El subforo no existe."));
 
-        if (imagen != null && !imagen.isEmpty()) {
-            validarMultimedia(imagen, "imagen");
-        }
-        if (video != null && !video.isEmpty()) {
-            validarMultimedia(video, "video");
-        }
-        if (audio != null && !audio.isEmpty()) {
-            validarMultimedia(audio, "audio");
-        }
+        // Store real files
+        String imagenPath = multimediaStorageService.storeFile(request.getImagenFile(), "imagen");
+        String videoPath = multimediaStorageService.storeFile(request.getVideoFile(), "video");
+        String audioPath = multimediaStorageService.storeFile(request.getAudioFile(), "audio");
 
-        Publicacion publicacion = new Publicacion();
-        publicacion.setTitulo(titulo);
-        publicacion.setContenido(contenido);
-        publicacion.setDescripcion((descripcion == null || descripcion.isBlank()) ?
-                (contenido != null && contenido.length() > 200 ? contenido.substring(0, 200) + "..." : contenido)
-                : descripcion);
+        Publicacion publicacion = publicacionMapper.toEntity(request);
         publicacion.setAutor(autor);
         publicacion.setSubforo(subforo);
-        publicacion.setImagen(imagen);
-        publicacion.setVideo(video);
-        publicacion.setAudio(audio);
-        publicacion.setPuntuacion(0);
+        publicacion.setImagen(imagenPath);
+        publicacion.setVideo(videoPath);
+        publicacion.setAudio(audioPath);
+
+        if (publicacion.getDescripcion() == null || publicacion.getDescripcion().isBlank()) {
+            String content = publicacion.getContenido();
+            publicacion.setDescripcion(
+                    content != null && content.length() > 200 ? content.substring(0, 200) + "..." : content);
+        }
 
         publicacion = publicacionRepository.save(publicacion);
 
-        return toDTO(publicacion);
+        return publicacionMapper.toResponse(publicacion);
     }
 
     @Transactional(readOnly = true)
-    public List<PublicacionDTO> obtenerPublicacionesPorSubforo(Long subforoId) {
+    public List<PublicacionResponse> obtenerPublicacionesPorSubforo(Long subforoId) {
         List<Publicacion> publicaciones = publicacionRepository
                 .findBySubforoIdOrderByFechaCreacionDesc(subforoId);
         return publicaciones.stream().map(p -> {
-            PublicacionDTO dto = toDTO(p);
-            if (dto.getDescripcion() != null && dto.getDescripcion().length() > 100) {
-                dto.setDescripcion(dto.getDescripcion().substring(0, 100) + "...");
+            PublicacionResponse res = publicacionMapper.toResponse(p);
+            if (res.getDescripcion() != null && res.getDescripcion().length() > 100) {
+                res.setDescripcion(res.getDescripcion().substring(0, 100) + "...");
             }
-            return dto;
+            return res;
         }).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public PublicacionDTO obtenerDetallePublicacion(Long publicacionId) {
+    public List<PublicacionResponse> obtenerTodasPublicaciones() {
+        return publicacionRepository.findAll().stream()
+                .map(publicacionMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PublicacionResponse obtenerDetallePublicacion(Long publicacionId) {
         Publicacion publicacion = publicacionRepository.findById(publicacionId)
-                .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
-        return toDTO(publicacion);
+                .orElseThrow(() -> new ResourceNotFoundException("Publicación no encontrada."));
+        return publicacionMapper.toResponse(publicacion);
     }
 
     @Transactional
     public void actualizarEstadoPredominante(Long publicacionId, Integer nuevoEstado) {
         Publicacion publicacion = publicacionRepository.findById(publicacionId)
-                .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Publicación no encontrada."));
         publicacion.setPuntuacion(nuevoEstado);
         publicacionRepository.save(publicacion);
-    }
-
-    private void validarMultimedia(String url, String tipo) {
-        String ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
-        switch (tipo) {
-            case "imagen":
-                if (!ext.matches("png|jpg|jpeg|gif|webp")) {
-                    throw new IllegalArgumentException("Formato de imagen no válido: " + ext);
-                }
-                break;
-            case "video":
-                if (!ext.matches("mp4|webm|avi|mov")) {
-                    throw new IllegalArgumentException("Formato de video no válido: " + ext);
-                }
-                break;
-            case "audio":
-                if (!ext.matches("mp3|wav|ogg|aac")) {
-                    throw new IllegalArgumentException("Formato de audio no válido: " + ext);
-                }
-                break;
-        }
-    }
-
-    private PublicacionDTO toDTO(Publicacion p) {
-        PublicacionDTO dto = new PublicacionDTO();
-        dto.setId(p.getId());
-        dto.setTitulo(p.getTitulo());
-        dto.setDescripcion(p.getDescripcion());
-        dto.setContenido(p.getContenido());
-        dto.setImagen(p.getImagen());
-        dto.setVideo(p.getVideo());
-        dto.setAudio(p.getAudio());
-        dto.setAutorNickname(p.getAutor().getNickname());
-        dto.setSubforoId(p.getSubforo().getId());
-        dto.setSubforoNombre(p.getSubforo().getNombre());
-        dto.setPuntuacion(p.getPuntuacion());
-        dto.setFechaCreacion(p.getFechaCreacion());
-        return dto;
     }
 }

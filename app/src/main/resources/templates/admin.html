@@ -9,8 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Estilos del admin -->
     <link th:href="@{/css/admin.css}" rel="stylesheet">
 </head>
@@ -19,17 +19,19 @@
     <!-- ══════════════ NAVBAR ══════════════ -->
     <nav class="fh-navbar">
         <a th:href="@{/index}" class="fh-logo">
-            <img th:src="@{/picture/logo.png}" alt="Nexo Foro" style="width: 40px; height: auto;">
+            <div class="fh-logo-icon" style="background: var(--fh-accent); width: 35px; height: 35px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px;">
+                <i class="bi bi-chat-dots-fill" style="color: #fff;"></i>
+            </div>
             <h2 style="font-family: 'Sora', sans-serif; font-weight: 700; margin: 0; font-size: 1.5rem; color: #fff; letter-spacing: -0.5px;">
                 Nexo <span style="color: var(--fh-accent);">Foro</span>
             </h2>
         </a>
 
         <div class="d-flex align-items-center gap-3">
-            <span style="font-weight: 600; font-size: 0.9rem;">Admin_Thom</span>
-            <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--fh-accent); display: flex; align-items: center; justify-content: center; font-weight: bold;">T</div>
-            <a th:href="@{/login(logout=true)}" class="text-muted ms-2" title="Cerrar Sesión">
-                <i class="fa-solid fa-right-from-bracket"></i>
+            <span style="font-weight: 600; font-size: 0.9rem;" th:text="${usuario.nickname}">Admin</span>
+            <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--fh-accent); display: flex; align-items: center; justify-content: center; font-weight: bold; color:#fff;" th:text="${#strings.substring(usuario.nickname, 0, 1).toUpperCase()}">A</div>
+            <a th:href="@{/logout}" class="text-muted ms-2" title="Cerrar Sesión">
+                <i class="bi bi-box-arrow-right" style="font-size: 1.25rem;"></i>
             </a>
         </div>
     </nav>
@@ -40,82 +42,73 @@
         <!-- SIDEBAR -->
         <aside class="fh-sidebar">
             <div style="color: var(--fh-muted); font-size: 0.75rem; font-weight: bold; margin-bottom: 1rem; padding-left: 1rem; text-transform: uppercase;">Navegación</div>
-            <a th:href="@{/index}" class="sidebar-link"><i class="fa-solid fa-house"></i> Inicio</a>
-            <a href="#" class="sidebar-link"><i class="fa-solid fa-fire"></i> Tendencias</a>
+            <a th:href="@{/index}" class="sidebar-link"><i class="bi bi-house me-2"></i> Inicio</a>
             <div style="color: var(--fh-muted); font-size: 0.75rem; font-weight: bold; margin-top: 2rem; margin-bottom: 1rem; padding-left: 1rem; text-transform: uppercase;">Gestión</div>
-            <a th:href="@{/admin}" class="sidebar-link active"><i class="fa-solid fa-shield-halved"></i> Panel Admin</a>
+            <a th:href="@{/admin}" class="sidebar-link active"><i class="bi bi-shield-lock me-2"></i> Panel Admin</a>
         </aside>
+
         <!-- MAIN -->
         <main class="fh-main">
             <!-- Hero -->
             <div class="fh-hero">
                 <h1>
-                    <i class="fa-solid fa-screwdriver-wrench me-2" style="color: var(--fh-accent);"></i>
+                    <i class="bi bi-sliders me-2" style="color: var(--fh-accent);"></i>
                     <span>Panel</span> de Administración
                 </h1>
                 <p>Centro de control para moderación de reportes y estructuración de la comunidad.</p>
             </div>
+
+            <!-- Notificaciones -->
+            <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert" style="background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.3);">
+                <span th:text="${mensaje}">Mensaje</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="filter: invert(1);"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3);">
+                <span th:text="${error}">Error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="filter: invert(1);"></button>
+            </div>
+
             <div class="row g-4">
-                <!-- ── Tabla de Reportes ── -->
+                <!-- Tabla de Reportes -->
                 <div class="col-lg-8">
-                    <div class="feed-title">
-                        <i class="fa-solid fa-flag text-warning"></i> Reportes Pendientes
+                    <div class="feed-title mb-3" style="font-size: 1.2rem; font-weight: bold; color: var(--fh-text);">
+                        <i class="bi bi-flag text-warning me-1"></i> Reportes Pendientes
                     </div>
-                    <div class="fh-card p-0 overflow-hidden">
+                    <div class="fh-card p-0 overflow-hidden" style="background: var(--fh-surface); border: 1px solid var(--fh-border); border-radius:12px;">
                         <div class="table-responsive">
                             <table class="table table-dark-custom table-hover mb-0">
                                 <thead>
                                     <tr>
-                                    <th class="ps-4 py-3">Usuario Reportado</th>
-                                    <th class="py-3">Tipo</th>
-                                    <th class="py-3">Motivo</th>
-                                    <th class="text-end pe-4 py-3">Acciones</th>
+                                        <th class="ps-4 py-3">Usuario Denunciante</th>
+                                        <th class="py-3">Tipo</th>
+                                        <th class="py-3">Motivo</th>
+                                        <th class="text-end pe-4 py-3">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Formulario Crear Categoría -->
                                     <tr th:each="reporte : ${listaReportes}">
-                                        <td class="ps-4 py-3 font-weight-bold" th:text="${reporte.usuario.nickname}">@usuario_demo</td>
+                                        <td class="ps-4 py-3 fw-bold" th:text="'@' + ${reporte.usuarioNickname}">@usuario_demo</td>
                                         <td class="py-3">
-                                        <span class="badge" style="background: rgba(108,99,255,.2); color: var(--fh-accent-light);" th:text="${reporte.tipoContenido}">Publicación</span>
+                                            <span class="badge" style="background: rgba(108,99,255,.2); color: var(--fh-accent-light);" th:text="${#strings.capitalize(reporte.tipoContenido)}">Publicación</span>
                                         </td>
-                                        <td class="py-3" style="color: var(--fh-danger);" th:text="${reporte.motivo}">Spam</td>
+                                        <td class="py-3 text-warning" th:text="${#strings.capitalize(#strings.replace(reporte.motivo, '_', ' '))}">Spam</td>
                                         <td class="text-end pe-4 py-3">
-                       <button class="btn btn-sm btn-outline-light me-1"
-                        title="Revisar">
-                         <i class="fa-solid fa-eye"></i>
-                         </button>
-                         <form th:action="@{/admin/reportes/eliminar}"
-                          method="post"
-                          style="display:inline;">
-                          <input type="hidden"
-                          name="reporteId"
-                        th:value="${reporte.id}">
-                        <button type="submit"
-                        class="btn btn-sm btn-outline-danger"
-                        title="Eliminar Reporte">
-                        <i class="fa-solid fa-trash"></i>
-                        </button>
-                        </form>
-                        </td>
-                                    </tr>
-                                    <!-- Filas estáticas de ejemplo -->
-                                    <tr>
-                                        <td class="ps-4 py-3" style="font-weight: 500;">@hater_anonimo</td>
-                                        <td class="py-3"><span class="badge" style="background: rgba(108,99,255,.2); color: var(--fh-accent-light);">Comentario</span></td>
-                                        <td class="py-3" style="color: #f87171;">Contenido ofensivo</td>
-                                        <td class="text-end pe-4 py-3">
-                                            <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+                                            <!-- Review / View reported content link -->
+                                            <a th:href="@{/publicacion/{id}(id=${reporte.contenidoId})}" class="btn btn-sm btn-outline-light me-1" title="Ver Publicación">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <!-- Resolve/Delete report form -->
+                                            <form th:action="@{/admin/reportes/eliminar}" method="post" style="display:inline;">
+                                                <input type="hidden" name="reporteId" th:value="${reporte.id}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Resolver Reporte" onclick="return confirm('¿Resolver reporte y eliminarlo de la lista?');">
+                                                    <i class="bi bi-check2-circle"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td class="ps-4 py-3" style="font-weight: 500;">@bot_crypto</td>
-                                        <td class="py-3"><span class="badge" style="background: rgba(108,99,255,.2); color: var(--fh-accent-light);">Publicación</span></td>
-                                        <td class="py-3" style="color: #f87171;">Spam masivo</td>
-                                        <td class="text-end pe-4 py-3">
-                                            <button class="btn btn-sm btn-outline-light me-1"><i class="fa-solid fa-eye"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+                                    <tr th:if="${#lists.isEmpty(listaReportes)}">
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            No hay reportes pendientes de moderación.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -123,16 +116,18 @@
                         </div>
                     </div>
                 </div>
-                <!-- ──  ── -->
+
+                <!-- Crear Categoría -->
                 <div class="col-lg-4">
-                    <div class="feed-title">
-                        <i class="fa-solid fa-folder-plus" style="color: #4ade80;"></i> Crear Categoría
+                    <div class="feed-title mb-3" style="font-size: 1.2rem; font-weight: bold; color: var(--fh-text);">
+                        <i class="bi bi-folder-plus text-success me-1"></i> Crear Subforo
                     </div>
 
-                    <div class="fh-card">
+                    <div class="fh-card" style="background: var(--fh-surface); border: 1px solid var(--fh-border); border-radius:12px;">
+                        <form th:action="@{/subforo/crear}" method="post" class="w-100 p-4">
                             <div class="mb-3">
                                 <label class="fh-form-label">Nombre del Subforo *</label>
-                                <input type="text" name="nombre" class="form-control fh-form-control" placeholder="Ej: Programación Java" required>
+                                <input type="text" name="nombre" class="form-control fh-form-control" placeholder="Ej: RPG, FPS, Programación" required>
                             </div>
 
                             <div class="mb-3">
@@ -141,24 +136,16 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="fh-form-label">Pertenece a (Sub-categoría de)</label>
-                                <select name="parentId" class="form-select fh-form-control">
-                                    <option value="null">-- Ninguno (Es un Foro Principal) --</option>
+                                <label class="fh-form-label">Pertenece a (Foro Padre)</label>
+                                <select name="parentId" class="form-select fh-form-control" style="background: var(--fh-surface-2); border: 1px solid var(--fh-border); color: var(--fh-text);">
+                                    <option value="">-- Ninguno (Es un Foro Principal) --</option>
                                     <option th:each="foro : ${subforosPrincipales}" th:value="${foro.id}" th:text="${foro.nombre}"></option>
-                                    <option value="1">Videojuegos</option>
-                                    <option value="2">Tecnología</option>
                                 </select>
+                                <small class="text-muted d-block mt-1">Si seleccionas un padre, este se convertirá en un sub-subforo (máximo 3 niveles de profundidad).</small>
                             </div>
 
-                            <div class="form-check mb-4">
-                                <input class="form-check-input" type="checkbox" id="esAdulto" name="esAdulto"
-                                       style="background-color: var(--fh-surface-2); border-color: var(--fh-border);">
-                                <label class="form-check-label text-muted" for="esAdulto" style="font-size: 0.85rem;">
-                                    Marcar como contenido +16
-                                </label>
-                            </div>
-                            <button type="submit" class="btn-primary-custom w-100">
-                                <i class="fa-solid fa-plus me-2"></i> Crear Subforo
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="background: var(--fh-accent); border: none;">
+                                <i class="bi bi-plus-lg me-1"></i> Crear Subforo
                             </button>
                         </form>
                     </div>
@@ -170,8 +157,6 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Script del admin -->
-    <script th:src="@{/js/admin.js}"></script>
 
 </body>
 </html>

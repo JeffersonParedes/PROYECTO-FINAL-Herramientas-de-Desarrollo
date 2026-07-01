@@ -1,17 +1,18 @@
 package com.foro.app.service;
 
-import com.foro.app.dto.UsuarioDTO;
-import com.foro.app.entity.Usuario;
+import com.foro.app.dto.Request.UsuarioRegisterRequest;
+import com.foro.app.dto.Request.UsuarioUpdateRequest;
+import com.foro.app.dto.Response.UsuarioResponse;
 
 public interface UsuarioService {
 
-    Usuario registrarUsuario(UsuarioDTO dto);
+    UsuarioResponse registrarUsuario(UsuarioRegisterRequest request);
 
-    Usuario autenticarUsuario(String email, String password);
+    UsuarioResponse autenticarUsuario(String email, String password);
 
-    UsuarioDTO obtenerPerfilPublico(String nickname);
+    UsuarioResponse obtenerPerfilPublico(String nickname);
 
-    Usuario actualizarPerfil(Long usuarioId, UsuarioDTO dto);
+    UsuarioResponse actualizarPerfil(Long usuarioId, UsuarioUpdateRequest request);
 
     void suspenderUsuario(Long idEjecutor, Long idObjetivo);
 }

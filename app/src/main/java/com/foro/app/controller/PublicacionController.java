@@ -1,9 +1,13 @@
 package com.foro.app.controller;
 
-import com.foro.app.dto.ComentarioDTO;
-import com.foro.app.dto.PublicacionDTO;
+import com.foro.app.dto.Request.PublicacionCreateRequest;
+import com.foro.app.dto.Response.ComentarioResponse;
+import com.foro.app.dto.Response.PublicacionResponse;
+import com.foro.app.dto.Response.UsuarioResponse;
+import com.foro.app.exceptions.UnauthorizedException;
 import com.foro.app.service.ComentarioService;
 import com.foro.app.service.PublicacionService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,15 +23,15 @@ public class PublicacionController {
     private final ComentarioService comentarioService;
 
     public PublicacionController(PublicacionService publicacionService,
-                                 ComentarioService comentarioService) {
+            ComentarioService comentarioService) {
         this.publicacionService = publicacionService;
         this.comentarioService = comentarioService;
     }
 
     @GetMapping("/{id}")
     public String obtenerDetallePublicacion(@PathVariable Long id, Model model) {
-        PublicacionDTO publicacion = publicacionService.obtenerDetallePublicacion(id);
-        List<ComentarioDTO> comentarios = comentarioService.obtenerComentariosPorPublicacion(id);
+        PublicacionResponse publicacion = publicacionService.obtenerDetallePublicacion(id);
+        List<ComentarioResponse> comentarios = comentarioService.obtenerComentariosPorPublicacion(id);
 
         model.addAttribute("publicacion", publicacion);
         model.addAttribute("comentarios", comentarios);
@@ -38,7 +42,7 @@ public class PublicacionController {
 
     @GetMapping("/subforo/{subforoId}")
     public String obtenerPublicacionesPorSubforo(@PathVariable Long subforoId, Model model) {
-        List<PublicacionDTO> publicaciones = publicacionService.obtenerPublicacionesPorSubforo(subforoId);
+        List<PublicacionResponse> publicaciones = publicacionService.obtenerPublicacionesPorSubforo(subforoId);
         model.addAttribute("publicaciones", publicaciones);
         model.addAttribute("pageTitle", "Publicaciones");
         model.addAttribute("currentPage", "subforo");
@@ -46,23 +50,16 @@ public class PublicacionController {
     }
 
     @PostMapping("/crear")
-    public String crearPublicacion(@RequestParam Long autorId,
-                                   @RequestParam Long subforoId,
-                                   @RequestParam String titulo,
-                                   @RequestParam String contenido,
-                                   @RequestParam(required = false) String descripcion,
-                                   @RequestParam(required = false) String imagen,
-                                   @RequestParam(required = false) String video,
-                                   @RequestParam(required = false) String audio,
-                                   RedirectAttributes redirectAttributes) {
-        try {
-            PublicacionDTO dto = publicacionService.crearPublicacion(
-                    autorId, subforoId, titulo, contenido, descripcion, imagen, video, audio);
-            redirectAttributes.addFlashAttribute("mensaje", "Publicación creada");
-            return "redirect:/publicacion/" + dto.getId();
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/crear";
+    public String crearPublicacion(PublicacionCreateRequest request,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null) {
+            throw new UnauthorizedException("Debes iniciar sesión para crear una publicación.");
         }
+
+        PublicacionResponse response = publicacionService.crearPublicacion(loggedUser.getId(), request);
+        redirectAttributes.addFlashAttribute("mensaje", "Publicación creada con éxito.");
+        return "redirect:/publicacion/" + response.getId();
     }
 }

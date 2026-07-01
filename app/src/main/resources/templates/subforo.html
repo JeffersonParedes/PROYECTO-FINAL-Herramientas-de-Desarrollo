@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
  
 <!-- HEAD desde base -->
-<head th:replace="base :: head('Videojuegos | Nexo Foro')"></head>
+<head th:replace="base :: head(${subforo.nombre} + ' | Nexo Foro')"></head>
  
 <body>
  
@@ -21,138 +21,66 @@
         <div class="subforo-header">
             <div class="d-flex align-items-start gap-3 flex-wrap">
                 <div class="subforo-icon">
-                    <i class="bi bi-controller"></i>
+                    <i class="bi bi-folder-fill"></i>
                 </div>
  
                 <div>
-                    <h1 class="subforo-name">Videojuegos</h1>
-                    <p class="subforo-desc">
-                        Discusiones, análisis, recomendaciones y novedades del mundo de los videojuegos.
+                    <h1 class="subforo-name" th:text="${subforo.nombre}">Subforo</h1>
+                    <p class="subforo-desc" th:text="${subforo.descripcion}">
+                        Descripción...
                     </p>
- 
-                    <div class="subforo-stats">
-                        <span class="stat">
-                            <i class="bi bi-file-text"></i>
-                            <strong>312</strong>&nbsp;publicaciones
-                        </span>
-                        <span class="stat">
-                            <i class="bi bi-people"></i>
-                            <strong>84</strong>&nbsp;participantes
-                        </span>
-                    </div>
                 </div>
             </div>
         </div>
  
-        <!-- ACTION BAR -->
-        <div class="mb-3 d-flex align-items-center gap-2">
-            <small class="text-muted">Subforo:</small>
-            <span class="badge-subforo">Videojuegos</span>
-        </div>
- 
-        <!-- MURO RESTRINGIDO -->
-        <div class="fh-restricted" id="muro-restringido" style="display:none;">
-            <i class="bi bi-shield-lock restricted-icon"></i>
-            <p class="restricted-title">Contenido restringido</p>
-            <p class="restricted-text">
-                Este subforo contiene material +16. Inicia sesión para ver las publicaciones.
-            </p>
-            <a th:href="@{/login}" class="btn-crear me-2">
-                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
-            </a>
-            <a th:href="@{/registro}" class="btn-login">
-                <i class="bi bi-person-plus"></i> Registrarse
-            </a>
+        <!-- Breadcrumbs -->
+        <div class="mb-4 d-flex align-items-center gap-2 flex-wrap" style="background: var(--fh-surface); padding: 10px 15px; border-radius: 8px; border: 1px solid var(--fh-border);">
+            <small class="text-muted">Ruta:</small>
+            <th:block th:each="crumb, iter : ${breadcrumbs}">
+                <a th:href="@{/subforo/{id}(id=${crumb.id})}" class="badge-subforo" th:text="${crumb.nombre}">Subforo</a>
+                <span th:if="${!iter.last}" class="text-muted">/</span>
+            </th:block>
         </div>
  
         <!-- CONTENIDO VISIBLE -->
         <div id="contenido-subforo">
  
-            <!-- Action bar — FIX 1: botón toggle restricción reincorporado -->
-            <div class="action-bar">
+            <!-- Action bar -->
+            <div class="action-bar mb-4">
                 <div class="sort-tabs">
-                    <a href="#" class="sort-btn active"><i class="bi bi-clock"></i> Reciente</a>
-                    <a href="#" class="sort-btn"><i class="bi bi-arrow-up-circle"></i> Top</a>
+                    <span class="text-muted" style="font-size:0.9rem;">Publicaciones en esta categoría</span>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleMuro()">
-                        <i class="bi bi-toggle-off" id="muro-icon"></i>
-                        <span id="muro-label">Activar restricción</span>
-                    </button>
-                    <a th:href="@{/crear}" class="btn-crear">
+                <div>
+                    <a th:href="@{/crear(subforoId=${subforo.id})}" class="btn-crear">
                         <i class="bi bi-pencil-square"></i> Crear Publicación
                     </a>
                 </div>
             </div>
  
-            <!-- Tarjeta 1 (Normal) -->
-            <div class="fh-card">
+            <!-- Tarjetas dinámicas -->
+            <div th:each="pub : ${publicaciones}" class="fh-card">
                 <div class="score-col">
-                    <span class="score-val pos">87</span>
+                    <span class="score-val" 
+                          th:classappend="${pub.puntuacion > 0} ? 'pos' : (${pub.puntuacion < 0} ? 'neg' : 'neu')" 
+                          th:text="${pub.puntuacion > 0} ? '+' + ${pub.puntuacion} : ${pub.puntuacion}">0</span>
                     <span class="score-lbl">pts</span>
                 </div>
                 <div class="card-body-inner">
-                    <div class="card-meta"></div>
                     <div class="card-title">
-                        <a th:href="@{/publicacion}">Elden Ring vs Baldur's Gate 3 — ¿Cuál es el mejor RPG moderno?</a>
+                        <a th:href="@{/publicacion/{id}(id=${pub.id})}" th:text="${pub.titulo}">Título</a>
                     </div>
-                    <p class="card-excerpt">
-                        Dos titanes del género en un debate sin fin. Comparto mi análisis después de terminar ambos juegos al 100%...
+                    <p class="card-excerpt" th:text="${pub.descripcion}">
+                        Descripción corta...
                     </p>
                     <div class="card-foot">
-                        <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">gamer_pro</a></span>
-                        <span class="meta-pill"><i class="bi bi-chat"></i> 95 comentarios</span>
-                        <span class="meta-pill"><i class="bi bi-clock"></i> 25 abr 2025</span>
+                        <span class="meta-pill"><i class="bi bi-person-circle"></i> <a th:href="@{/perfil/{nick}(nick=${pub.autorNickname})}" th:text="${pub.autorNickname}">Autor</a></span>
+                        <span class="meta-pill"><i class="bi bi-clock"></i> <span th:text="${#temporals.format(pub.fechaCreacion, 'dd MMM yyyy HH:mm')}">Fecha</span></span>
                     </div>
                 </div>
             </div>
- 
-            <!-- Tarjeta 2 (con +16 - TODA la tarjeta es clickeable) -->
-            <div class="fh-card adult-card" style="cursor:pointer;" data-url="publicacion_adulto.html">
-                <div class="score-col">
-                    <span class="score-val pos">54</span>
-                    <span class="score-lbl">pts</span>
-                </div>
-                <div class="card-body-inner">
-                    <div class="card-meta">
-                        <span class="badge-adult" style="cursor:pointer;">
-                            <i class="bi bi-exclamation-triangle-fill me-1"></i>+16
-                        </span>
-                    </div>
-                    <div class="card-title">
-                        <a href="javascript:void(0)">Los juegos de terror más perturbadores de la última generación</a>
-                    </div>
-                    <p class="card-excerpt">
-                        Contenido para los amantes del horror. Desde Resident Evil Village hasta Amnesia: The Bunker, estos títulos no son para cardíacos...
-                    </p>
-                    <div class="card-foot">
-                        <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">horror_fan</a></span>
-                        <span class="meta-pill"><i class="bi bi-chat"></i> 41 comentarios</span>
-                        <span class="meta-pill"><i class="bi bi-clock"></i> 23 abr 2025</span>
-                    </div>
-                </div>
-            </div>
- 
-            <!-- Tarjeta 3 (Normal) -->
-            <div class="fh-card">
-                <div class="score-col">
-                    <span class="score-val neu">0</span>
-                    <span class="score-lbl">pts</span>
-                </div>
-                <div class="card-body-inner">
-                    <div class="card-meta"></div>
-                    <div class="card-title">
-                        <a th:href="@{/publicacion}">¿Vale la pena comprar una Steam Deck en 2025?</a>
-                    </div>
-                    <p class="card-excerpt">
-                        Llevo 3 meses con la Steam Deck OLED y quiero compartir mi experiencia real, tanto los puntos fuertes como los débiles del dispositivo...
-                    </p>
-                    <div class="card-foot">
-                        <span class="meta-pill"><i class="bi bi-person-circle"></i><a th:href="@{/perfil}">pc_master</a></span>
-                        <span class="meta-pill"><i class="bi bi-chat"></i> 28 comentarios</span>
-                        <span class="meta-pill"><i class="bi bi-clock"></i> 20 abr 2025</span>
-                    </div>
-                </div>
+            <div th:if="${#lists.isEmpty(publicaciones)}" class="text-center py-5 text-muted">
+                <i class="bi bi-chat-left-dots" style="font-size: 3rem;"></i>
+                <p class="mt-3">Aún no hay publicaciones en este subforo. ¡Sé el primero en publicar!</p>
             </div>
  
         </div><!-- /contenido-subforo -->
@@ -160,80 +88,9 @@
     </main>
 </div>
  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
- 
-<!-- FIX 2: scripts globales desde base (incluye toggleAccordion para el sidebar) -->
+<!-- SCRIPTS desde base -->
 <th:block th:replace="base :: scripts"></th:block>
- 
-<script>
-    // Demo visual del muro +16
-    let muroActivo = false;
-    function toggleMuro() {
-        muroActivo = !muroActivo;
-        document.getElementById('muro-restringido').style.display  = muroActivo ? 'block' : 'none';
-        document.getElementById('contenido-subforo').style.display = muroActivo ? 'none'  : 'block';
-        document.getElementById('muro-icon').className  = muroActivo ? 'bi bi-toggle-on'  : 'bi bi-toggle-off';
-        document.getElementById('muro-label').textContent = muroActivo ? 'Desactivar restricción' : 'Activar restricción';
-    }
-</script>
- 
-<!-- Modal +16 -->
-<div class="modal fade" id="adultModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content text-center p-4" style="border-radius:16px;">
-            <i class="bi bi-exclamation-triangle-fill mb-3"
-               style="font-size:3rem; color:#f59e0b;"></i>
-            <h5 class="fw-bold">Content Warning</h5>
-            <p class="text-muted">
-                Este contenido es para mayores de 16 años.
-            </p>
-            <button class="btn btn-dark" id="confirmAdultBtn">
-                Entiendo, continuar
-            </button>
-        </div>
-    </div>
-</div>
- 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
- 
-    // Mostrar modal al hacer clic en badges +16
-    const botones = document.querySelectorAll(".open-adult-modal");
-    botones.forEach(btn => {
-        btn.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const modal = new bootstrap.Modal(document.getElementById('adultModal'));
-            modal.show();
-        });
-    });
- 
-    // Al hacer clic en cualquier parte de la tarjeta +16
-    const adultCards = document.querySelectorAll(".adult-card");
-    let pendingUrl = '';
- 
-    adultCards.forEach(card => {
-        card.addEventListener("click", function (e) {
-            if (e.target.tagName === 'A') return;
-            e.preventDefault();
-            pendingUrl = this.getAttribute('data-url') || 'publicacion_adulto.html';
-            const modal = new bootstrap.Modal(document.getElementById('adultModal'));
-            modal.show();
-        });
-    });
- 
-    // Botón de confirmación del modal
-    const confirmBtn = document.getElementById('confirmAdultBtn');
-    if (confirmBtn) {
-        confirmBtn.addEventListener('click', function () {
-            if (pendingUrl) window.location.href = pendingUrl;
-            const modal = bootstrap.Modal.getInstance(document.getElementById('adultModal'));
-            if (modal) modal.hide();
-        });
-    }
- 
-});
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
  
 </body>
 </html>

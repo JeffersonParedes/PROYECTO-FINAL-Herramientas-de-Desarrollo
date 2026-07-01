@@ -1,105 +1,130 @@
 package com.foro.app.controller;
 
+import com.foro.app.dto.Response.PublicacionResponse;
+import com.foro.app.dto.Response.ReporteResponse;
+import com.foro.app.dto.Response.SubforoResponse;
+import com.foro.app.dto.Response.UsuarioResponse;
+import com.foro.app.exceptions.UnauthorizedException;
+import com.foro.app.service.PublicacionService;
+import com.foro.app.service.ReporteService;
 import com.foro.app.service.SubforoService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
 import java.util.List;
 
 @Controller
 public class HomeController {
 
     private final SubforoService subforoService;
+    private final PublicacionService publicacionService;
+    private final ReporteService reporteService;
 
-    public HomeController(SubforoService subforoService) {
+    public HomeController(SubforoService subforoService,
+            PublicacionService publicacionService,
+            ReporteService reporteService) {
         this.subforoService = subforoService;
+        this.publicacionService = publicacionService;
+        this.reporteService = reporteService;
     }
 
-   @GetMapping("/index")
+    @GetMapping("/index")
     public String index(Model model) {
-        model.addAttribute("pageTitle", "Inicio");
-        model.addAttribute("publicaciones", List.of());
-        model.addAttribute("subforos", List.of());
+        List<PublicacionResponse> publicaciones = publicacionService.obtenerTodasPublicaciones();
+        List<SubforoResponse> subforos = subforoService.obtenerTodosSubforos();
+
+        model.addAttribute("pageTitle", "Inicio | Nexo Foro");
+        model.addAttribute("publicaciones", publicaciones);
+        model.addAttribute("subforos", subforos);
         model.addAttribute("currentPage", "index");
         return "index";
     }
 
-@GetMapping("/")
+    @GetMapping("/")
     public String rootRedirect() {
         return "redirect:/index";
     }
 
     @GetMapping("/subforo")
     public String subforo(Model model) {
-        model.addAttribute("pageTitle", "Videojuegos");
+        List<SubforoResponse> subforos = subforoService.obtenerTodosSubforos();
+        model.addAttribute("pageTitle", "Subforos");
         model.addAttribute("currentPage", "subforo");
         model.addAttribute("currentSubforoId", null);
-        model.addAttribute("usuarioLogueado", false);
-        model.addAttribute("subforoAdulto", true);
-        model.addAttribute("subforos", List.of());
+        model.addAttribute("subforoAdulto", false);
+        model.addAttribute("subforos", subforos);
         return "subforo";
     }
 
     @GetMapping("/tendencias")
     public String tendencias(Model model) {
-        model.addAttribute("pageTitle", "Tendencias");
+        // Sort publications by score descending
+        List<PublicacionResponse> publicaciones = publicacionService.obtenerTodasPublicaciones();
+        publicaciones.sort((p1, p2) -> p2.getPuntuacion().compareTo(p1.getPuntuacion()));
+
+        List<SubforoResponse> subforos = subforoService.obtenerTodosSubforos();
+
+        model.addAttribute("pageTitle", "Tendencias | Nexo Foro");
+        model.addAttribute("publicaciones", publicaciones);
+        model.addAttribute("subforos", subforos);
         model.addAttribute("currentPage", "tendencias");
-        model.addAttribute("publicaciones", List.of());
-        model.addAttribute("subforos", List.of());
         return "index";
     }
 
-// ── VISTAS DE TU EQUIPO (Thom_ y Leonardo) ──
-
     @GetMapping("/login")
-    public String login(Model model) {
-        // Le pasamos el título para la pestaña del navegador
+    public String login(Model model, HttpSession session) {
+        if (session.getAttribute("usuario") != null) {
+            return "redirect:/index";
+        }
         model.addAttribute("pageTitle", "Iniciar Sesión");
-        
-        // Retorna el nombre exacto del archivo HTML (sin el .html)
-        return "login"; 
+        return "login";
     }
 
     @GetMapping("/registro")
-    public String registro(Model model) {
+    public String registro(Model model, HttpSession session) {
+        if (session.getAttribute("usuario") != null) {
+            return "redirect:/index";
+        }
         model.addAttribute("pageTitle", "Crear Cuenta");
-        
-        // Más adelante, cuando conecten MongoDB, aquí enviarán un objeto vacío:
-        // model.addAttribute("usuario", new Usuario());
-        
         return "registro";
     }
 
     @GetMapping("/admin")
-    public String admin(Model model) {
+    public String admin(Model model, HttpSession session) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null || !"admin".equalsIgnoreCase(loggedUser.getRol())) {
+            throw new UnauthorizedException("Acceso denegado. Se requiere cuenta de administrador.");
+        }
+
+        List<ReporteResponse> reportes = reporteService.obtenerReportes(loggedUser.getId());
+        List<SubforoResponse> subforosPrincipales = subforoService.obtenerSubforosPrincipales();
+
         model.addAttribute("pageTitle", "Panel de Administración");
-        
-        // Pasamos listas vacías por ahora para que no falle el th:each de la tabla
-        model.addAttribute("listaReportes", List.of());
-        model.addAttribute("subforosPrincipales", List.of());
-        
+        model.addAttribute("listaReportes", reportes);
+        model.addAttribute("subforosPrincipales", subforosPrincipales);
         return "admin";
     }
 
     @GetMapping("/crear")
-    public String crear(Model model) {
+    public String crear(Model model, HttpSession session) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null) {
+            throw new UnauthorizedException("Debes iniciar sesión para crear una publicación.");
+        }
+
         model.addAttribute("pageTitle", "Crear Publicación");
         model.addAttribute("subforos", subforoService.obtenerTodosSubforos());
-        model.addAttribute("autorId", 1L);
         return "crear";
     }
 
-    @GetMapping("/publicacion")
-    public String publicacion(Model model) {
-        model.addAttribute("pageTitle", "Publicación");
-        return "publicacion";
-    }
-
     @GetMapping("/perfil")
-    public String perfil(Model model) {
-        model.addAttribute("pageTitle", "Perfil");
-        return "perfil";
+    public String perfil(Model model, HttpSession session) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null) {
+            throw new UnauthorizedException("Debes iniciar sesión para ver tu perfil.");
+        }
+        return "redirect:/perfil/" + loggedUser.getNickname();
     }
-    
-   
-}  
+}
