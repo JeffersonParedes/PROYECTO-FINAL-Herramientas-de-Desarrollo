@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+permissions:
+  contents: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -67,3 +70,29 @@ jobs:
         with:
           name: foro-app-jar
           path: app/target/*.jar
+
+  deploy:
+    name: Publicar Release (CD)
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Descargar el .jar compilado
+        uses: actions/download-artifact@v4
+        with:
+          name: foro-app-jar
+          path: release-artifacts
+
+      - name: Crear GitHub Release con el .jar
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}-${{ github.ref_name }}
+          name: Release v1.0.${{ github.run_number }} (${{ github.ref_name }})
+          files: release-artifacts/*.jar
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
