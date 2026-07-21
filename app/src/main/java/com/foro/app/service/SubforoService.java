@@ -3,12 +3,14 @@ package com.foro.app.service;
 import com.foro.app.dto.Request.SubforoCreateRequest;
 import com.foro.app.dto.Response.SubforoJerarquiaResponse;
 import com.foro.app.dto.Response.SubforoResponse;
+import com.foro.app.entity.Publicacion;
 import com.foro.app.entity.Subforo;
 import com.foro.app.entity.Usuario;
 import com.foro.app.exceptions.BadRequestException;
 import com.foro.app.exceptions.ResourceNotFoundException;
 import com.foro.app.exceptions.UnauthorizedException;
 import com.foro.app.mappers.SubforoMapper;
+import com.foro.app.repository.PublicacionRepository;
 import com.foro.app.repository.SubforoRepository;
 import com.foro.app.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -23,13 +25,19 @@ public class SubforoService {
     private final SubforoRepository subforoRepository;
     private final UsuarioRepository usuarioRepository;
     private final SubforoMapper subforoMapper;
+    private final PublicacionRepository publicacionRepository;
+    private final PublicacionService publicacionService;
 
     public SubforoService(SubforoRepository subforoRepository,
             UsuarioRepository usuarioRepository,
-            SubforoMapper subforoMapper) {
+            SubforoMapper subforoMapper,
+            PublicacionRepository publicacionRepository,
+            PublicacionService publicacionService) {
         this.subforoRepository = subforoRepository;
         this.usuarioRepository = usuarioRepository;
         this.subforoMapper = subforoMapper;
+        this.publicacionRepository = publicacionRepository;
+        this.publicacionService = publicacionService;
     }
 
     @Transactional
@@ -147,5 +155,37 @@ public class SubforoService {
         return subforoRepository.findByParentIsNull().stream()
                 .map(subforoMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void eliminarSubforo(Long ejecutorId, Long subforoId) {
+        Usuario ejecutor = usuarioRepository.findById(ejecutorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario ejecutor no encontrado."));
+
+        if (ejecutor.getRol() != Usuario.Rol.admin) {
+            throw new UnauthorizedException("Acceso denegado. Se requieren permisos de administrador.");
+        }
+
+        Subforo subforo = subforoRepository.findById(subforoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Subforo no encontrado."));
+
+        eliminarSubforoRecursivo(ejecutorId, subforo);
+    }
+
+    private void eliminarSubforoRecursivo(Long adminId, Subforo subforo) {
+        // 1. Eliminar subforos hijos recursivamente
+        List<Subforo> hijos = subforoRepository.findByParentId(subforo.getId());
+        for (Subforo hijo : hijos) {
+            eliminarSubforoRecursivo(adminId, hijo);
+        }
+
+        // 2. Eliminar todas las publicaciones pertenecientes a este subforo
+        List<Publicacion> publicaciones = publicacionRepository.findBySubforoIdOrderByFechaCreacionDesc(subforo.getId());
+        for (Publicacion pub : publicaciones) {
+            publicacionService.eliminarPublicacion(adminId, pub.getId());
+        }
+
+        // 3. Eliminar el subforo
+        subforoRepository.delete(subforo);
     }
 }

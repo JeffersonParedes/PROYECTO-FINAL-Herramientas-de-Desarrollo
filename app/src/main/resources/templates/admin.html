@@ -156,6 +156,30 @@
                             </button>
                         </form>
                     </div>
+
+                    <!-- Lista de Subforos Existentes con Opción de Eliminar -->
+                    <div class="mt-4">
+                        <div class="feed-title mb-2" style="font-size: 1rem; font-weight: bold; color: var(--fh-text);">
+                            <i class="bi bi-folder-x text-danger me-1"></i> Subforos Existentes
+                        </div>
+                        <div class="fh-card p-3" style="background: var(--fh-surface); border: 1px solid var(--fh-border); border-radius:12px; max-height: 250px; overflow-y: auto;">
+                            <div th:each="sub : ${todosSubforos}" class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom: 1px solid var(--fh-border);">
+                                <div style="max-width: 80%;">
+                                    <div class="fw-bold text-light" style="font-size: 0.9rem;" th:text="${sub.nombre}">Nombre Subforo</div>
+                                    <small class="text-muted d-block text-truncate" th:text="${sub.descripcion}">Descripción</small>
+                                </div>
+                                <form th:action="@{/subforo/eliminar}" method="post" style="display:inline;">
+                                    <input type="hidden" name="subforoId" th:value="${sub.id}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar Subforo" onclick="return confirm('¿Seguro que deseas eliminar este subforo y TODAS sus publicaciones asociadas?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <div th:if="${#lists.isEmpty(todosSubforos)}" class="text-muted text-center py-2" style="font-size: 0.85rem;">
+                                No hay subforos creados.
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>

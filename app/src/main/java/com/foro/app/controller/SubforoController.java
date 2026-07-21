@@ -62,4 +62,18 @@ public class SubforoController {
         redirectAttributes.addFlashAttribute("mensaje", "Subforo '" + response.getNombre() + "' creado con éxito.");
         return "redirect:/subforo/" + response.getId();
     }
+
+    @PostMapping("/eliminar")
+    public String eliminarSubforo(@RequestParam Long subforoId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null || !"admin".equalsIgnoreCase(loggedUser.getRol())) {
+            throw new UnauthorizedException("Acceso denegado. Se requiere cuenta de administrador.");
+        }
+
+        subforoService.eliminarSubforo(loggedUser.getId(), subforoId);
+        redirectAttributes.addFlashAttribute("mensaje", "Subforo y sus contenidos eliminados exitosamente.");
+        return "redirect:/admin";
+    }
 }

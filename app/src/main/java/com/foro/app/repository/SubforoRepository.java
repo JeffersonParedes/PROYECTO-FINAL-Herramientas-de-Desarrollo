@@ -15,5 +15,6 @@ public interface SubforoRepository extends JpaRepository<Subforo, Long> {
     // Método CLAVE para obtenerJerarquiaCompleta(): 
     // Busca todos los foros principales (los que NO tienen padre, es decir, parent_id es NULL)
     List<Subforo> findByParentIsNull();
-    
+
+    List<Subforo> findByParentId(Long parentId);
 }
