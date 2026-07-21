@@ -1,6 +1,7 @@
 package com.foro.app.service;
 
 import com.foro.app.exceptions.BadRequestException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,8 +15,8 @@ import java.util.UUID;
 @Service
 public class MultimediaStorageService {
 
-    private final Path staticUploadsDirectory = Paths.get("src/main/resources/static/uploads");
-    private final Path targetUploadsDirectory = Paths.get("target/classes/static/uploads");
+    @Value("${app.upload.dir}")
+    private String uploadDir;
 
     public String storeFile(MultipartFile file, String type) {
         if (file == null || file.isEmpty()) {
@@ -34,17 +35,10 @@ public class MultimediaStorageService {
         String newFilename = UUID.randomUUID().toString() + "." + ext;
 
         try {
-            // Ensure static directory exists and copy file
-            Files.createDirectories(staticUploadsDirectory);
-            Path staticFilePath = staticUploadsDirectory.resolve(newFilename);
-            Files.copy(file.getInputStream(), staticFilePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Also copy to target directory if it exists for immediate display
-            if (Files.exists(Paths.get("target/classes/static"))) {
-                Files.createDirectories(targetUploadsDirectory);
-                Path targetFilePath = targetUploadsDirectory.resolve(newFilename);
-                Files.copy(file.getInputStream(), targetFilePath, StandardCopyOption.REPLACE_EXISTING);
-            }
+            Path uploadsDirectory = Paths.get(uploadDir);
+            Files.createDirectories(uploadsDirectory);
+            Path filePath = uploadsDirectory.resolve(newFilename);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             return "/uploads/" + newFilename;
         } catch (IOException e) {
