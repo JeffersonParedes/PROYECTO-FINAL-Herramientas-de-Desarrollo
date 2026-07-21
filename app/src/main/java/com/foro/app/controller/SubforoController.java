@@ -5,6 +5,7 @@ import com.foro.app.dto.Response.SubforoJerarquiaResponse;
 import com.foro.app.dto.Response.SubforoResponse;
 import com.foro.app.dto.Response.UsuarioResponse;
 import com.foro.app.exceptions.UnauthorizedException;
+import com.foro.app.service.PublicacionService;
 import com.foro.app.service.SubforoService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -20,9 +21,11 @@ import java.util.Map;
 public class SubforoController {
 
     private final SubforoService subforoService;
+    private final PublicacionService publicacionService;
 
-    public SubforoController(SubforoService subforoService) {
+    public SubforoController(SubforoService subforoService, PublicacionService publicacionService) {
         this.subforoService = subforoService;
+        this.publicacionService = publicacionService;
     }
 
     @GetMapping("/{id}")
@@ -30,6 +33,8 @@ public class SubforoController {
         Map<String, Object> detalle = subforoService.obtenerDetalleSubforo(id);
         model.addAttribute("subforo", detalle.get("subforo"));
         model.addAttribute("breadcrumbs", detalle.get("breadcrumbs"));
+        model.addAttribute("publicaciones", publicacionService.obtenerPublicacionesPorSubforo(id));
+        model.addAttribute("subforos", subforoService.obtenerTodosSubforos());
         model.addAttribute("pageTitle", ((SubforoResponse) detalle.get("subforo")).getNombre());
         model.addAttribute("currentPage", "subforo");
         return "subforo";

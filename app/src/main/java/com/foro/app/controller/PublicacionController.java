@@ -7,6 +7,7 @@ import com.foro.app.dto.Response.UsuarioResponse;
 import com.foro.app.exceptions.UnauthorizedException;
 import com.foro.app.service.ComentarioService;
 import com.foro.app.service.PublicacionService;
+import com.foro.app.service.SubforoService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,11 +22,14 @@ public class PublicacionController {
 
     private final PublicacionService publicacionService;
     private final ComentarioService comentarioService;
+    private final SubforoService subforoService;
 
     public PublicacionController(PublicacionService publicacionService,
-            ComentarioService comentarioService) {
+            ComentarioService comentarioService,
+            SubforoService subforoService) {
         this.publicacionService = publicacionService;
         this.comentarioService = comentarioService;
+        this.subforoService = subforoService;
     }
 
     @GetMapping("/{id}")
@@ -35,6 +39,7 @@ public class PublicacionController {
 
         model.addAttribute("publicacion", publicacion);
         model.addAttribute("comentarios", comentarios);
+        model.addAttribute("subforos", subforoService.obtenerTodosSubforos());
         model.addAttribute("pageTitle", publicacion.getTitulo());
         model.addAttribute("currentPage", "publicacion");
         return "publicacion";
