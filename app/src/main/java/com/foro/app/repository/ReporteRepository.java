@@ -20,5 +20,6 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
     // Método para el Dashboard de Administradores:
     // Obtiene todos los reportes ordenados del más antiguo al más reciente para atenderlos en orden de llegada
     List<Reporte> findAllByOrderByFechaAsc();
-    
+
+    void deleteByTipoContenidoAndContenidoId(Reporte.TipoContenido tipoContenido, Long contenidoId);
 }

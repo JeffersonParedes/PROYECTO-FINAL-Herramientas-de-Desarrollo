@@ -20,6 +20,9 @@ public class ReporteController {
     @Autowired
     private ReporteService reporteService;
 
+    @Autowired
+    private com.foro.app.service.PublicacionService publicacionService;
+
     @PostMapping("/reporte")
     public String crearReporte(ReporteRequest request,
             HttpSession session,
@@ -58,6 +61,20 @@ public class ReporteController {
 
         reporteService.eliminarReporte(loggedUser.getId(), reporteId);
         redirectAttributes.addFlashAttribute("mensaje", "Reporte eliminado exitosamente.");
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/admin/publicaciones/eliminar")
+    public String eliminarPublicacionAdmin(@RequestParam Long publicacionId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        UsuarioResponse loggedUser = (UsuarioResponse) session.getAttribute("usuario");
+        if (loggedUser == null || !"admin".equalsIgnoreCase(loggedUser.getRol())) {
+            throw new UnauthorizedException("Acceso denegado. Se requiere cuenta de administrador.");
+        }
+
+        publicacionService.eliminarPublicacion(loggedUser.getId(), publicacionId);
+        redirectAttributes.addFlashAttribute("mensaje", "Publicación eliminada exitosamente.");
         return "redirect:/admin";
     }
 }

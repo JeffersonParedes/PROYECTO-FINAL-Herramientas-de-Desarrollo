@@ -23,5 +23,6 @@ public interface ReaccionRepository extends JpaRepository<Reaccion, Long> {
     // Método para calcular la Predominancia matemática (+2 / -2):
     // Cuenta cuántos votos tiene una publicación filtrados por tipo de emoji
     long countByPublicacionIdAndTipo(Long publicacionId, Reaccion.TipoReaccion tipo);
-    
+
+    void deleteByPublicacionId(Long publicacionId);
 }

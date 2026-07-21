@@ -5,11 +5,16 @@ import com.foro.app.dto.Response.PublicacionResponse;
 import com.foro.app.entity.Publicacion;
 import com.foro.app.entity.Subforo;
 import com.foro.app.entity.Usuario;
+import com.foro.app.entity.Reporte;
 import com.foro.app.exceptions.BadRequestException;
 import com.foro.app.exceptions.ResourceNotFoundException;
 import com.foro.app.exceptions.SuspendedUserException;
+import com.foro.app.exceptions.UnauthorizedException;
 import com.foro.app.mappers.PublicacionMapper;
+import com.foro.app.repository.ComentarioRepository;
 import com.foro.app.repository.PublicacionRepository;
+import com.foro.app.repository.ReaccionRepository;
+import com.foro.app.repository.ReporteRepository;
 import com.foro.app.repository.SubforoRepository;
 import com.foro.app.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -26,17 +31,26 @@ public class PublicacionService {
     private final SubforoRepository subforoRepository;
     private final PublicacionMapper publicacionMapper;
     private final MultimediaStorageService multimediaStorageService;
+    private final ComentarioRepository comentarioRepository;
+    private final ReaccionRepository reaccionRepository;
+    private final ReporteRepository reporteRepository;
 
     public PublicacionService(PublicacionRepository publicacionRepository,
             UsuarioRepository usuarioRepository,
             SubforoRepository subforoRepository,
             PublicacionMapper publicacionMapper,
-            MultimediaStorageService multimediaStorageService) {
+            MultimediaStorageService multimediaStorageService,
+            ComentarioRepository comentarioRepository,
+            ReaccionRepository reaccionRepository,
+            ReporteRepository reporteRepository) {
         this.publicacionRepository = publicacionRepository;
         this.usuarioRepository = usuarioRepository;
         this.subforoRepository = subforoRepository;
         this.publicacionMapper = publicacionMapper;
         this.multimediaStorageService = multimediaStorageService;
+        this.comentarioRepository = comentarioRepository;
+        this.reaccionRepository = reaccionRepository;
+        this.reporteRepository = reporteRepository;
     }
 
     @Transactional
@@ -107,5 +121,26 @@ public class PublicacionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Publicación no encontrada."));
         publicacion.setPuntuacion(nuevoEstado);
         publicacionRepository.save(publicacion);
+    }
+
+    @Transactional
+    public void eliminarPublicacion(Long adminId, Long publicacionId) {
+        Usuario admin = usuarioRepository.findById(adminId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
+
+        if (admin.getRol() != Usuario.Rol.admin) {
+            throw new UnauthorizedException("No tienes permisos para eliminar publicaciones.");
+        }
+
+        Publicacion publicacion = publicacionRepository.findById(publicacionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Publicación no encontrada."));
+
+        // Limpiar entidades relacionadas
+        comentarioRepository.deleteByPublicacionId(publicacionId);
+        reaccionRepository.deleteByPublicacionId(publicacionId);
+        reporteRepository.deleteByTipoContenidoAndContenidoId(Reporte.TipoContenido.publicacion, publicacionId);
+
+        // Eliminar publicación
+        publicacionRepository.delete(publicacion);
     }
 }

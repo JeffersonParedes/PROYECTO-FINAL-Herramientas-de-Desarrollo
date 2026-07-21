@@ -100,10 +100,12 @@ public class HomeController {
 
         List<ReporteResponse> reportes = reporteService.obtenerReportes(loggedUser.getId());
         List<SubforoResponse> subforosPrincipales = subforoService.obtenerSubforosPrincipales();
+        List<PublicacionResponse> publicaciones = publicacionService.obtenerTodasPublicaciones();
 
         model.addAttribute("pageTitle", "Panel de Administración");
         model.addAttribute("listaReportes", reportes);
         model.addAttribute("subforosPrincipales", subforosPrincipales);
+        model.addAttribute("listaPublicaciones", publicaciones);
         return "admin";
     }
 

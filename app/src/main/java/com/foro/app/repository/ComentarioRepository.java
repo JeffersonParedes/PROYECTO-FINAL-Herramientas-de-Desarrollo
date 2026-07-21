@@ -12,5 +12,6 @@ public interface ComentarioRepository extends JpaRepository<Comentario, Long> {
     // Método CLAVE para obtenerComentariosPorPublicacion():
     // Busca todos los comentarios de una publicación y los ordena cronológicamente (el más viejo primero)
     List<Comentario> findByPublicacionIdOrderByFechaAsc(Long publicacionId);
-    
+
+    void deleteByPublicacionId(Long publicacionId);
 }
